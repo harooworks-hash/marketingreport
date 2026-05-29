@@ -16,3 +16,6 @@ scripts/
 
 # 공개 배포 대상: index.html(익명화), vercel.json 만 커밋
 # (index.html 은 대표자명 마스킹된 공개용)
+
+# 로컬 도구 설정
+.claude/
