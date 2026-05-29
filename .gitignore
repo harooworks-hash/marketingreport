@@ -6,3 +6,13 @@
 # 인증 토큰/세션
 *.token
 session.json
+
+# 원본 데이터 덤프 / 결과물 (고객 개인정보 포함 - 커밋 금지)
+data/
+report/
+
+# 내부 수집/생성 스크립트 (관리자 API 구조 노출 방지 - 공개 저장소 제외)
+scripts/
+
+# 공개 배포 대상: index.html(익명화), vercel.json 만 커밋
+# (index.html 은 대표자명 마스킹된 공개용)
