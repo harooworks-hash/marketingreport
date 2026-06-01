@@ -88,7 +88,7 @@
 </style></head>
 <body><div class="wrap">
   <header>
-    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 05:40 KST</span></h1>
+    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 05:51 KST</span></h1>
     <div class="gran">
       <span class="lbl">📅 기간 단위</span>
       <div class="seg" id="granSeg">
@@ -123,10 +123,18 @@
   <!-- c1: 이용자 & 히어로 -->
   <section class="panel" id="c1">
     <h2 class="sec">👥 이용자 &amp; 히어로</h2>
+
+    <h3 class="subcat">🙋 이용자</h3>
     <div class="grid kpis" id="k-user"></div>
-    <div class="grid charts" style="margin-top:14px">
-      <div class="chart-card"><h3>히어로 신규/누적 추이 <span class="sub2" id="g-hero"></span></h3><div class="chart-box"><canvas id="heroTrend"></canvas></div></div>
+    <div class="grid charts" style="margin-top:12px">
+      <div class="chart-card"><h3>이용자 신규 유입 추이 <span class="sub2" id="g-user"></span> <span class="sub2" style="font-weight:400">· 사용자앱 설치(AppsFlyer) 기준</span></h3><div class="chart-box"><canvas id="userTrend"></canvas></div></div>
       <div class="chart-card"><h3>회원 구성 (인증/미인증)</h3><div class="chart-box"><canvas id="memberDonut"></canvas></div></div>
+    </div>
+
+    <h3 class="subcat" style="margin-top:28px">🦸 히어로</h3>
+    <div class="grid kpis" id="k-hero"></div>
+    <div class="grid charts" style="margin-top:12px">
+      <div class="chart-card"><h3>히어로 신규/누적 추이 <span class="sub2" id="g-hero"></span></h3><div class="chart-box"><canvas id="heroTrend"></canvas></div></div>
     </div>
     <div class="scroll" style="margin-top:13px;max-height:340px"><table id="heroTable"></table></div>
   </section>
@@ -240,10 +248,12 @@ function dlSum(obj,g,prev){const d=PWIN[g];return Object.entries(obj||{}).filter
 function pdelta(cur,prev){return prev?((cur-prev)/prev*100):null;}
 
 function renderUser(g){
-  const hCur=heroNewN(g,false),hPrev=heroNewN(g,true);
   setHTML('k-user',[
    {label:'신규 회원 (오늘)',val:fmt(T.newUserToday)+'<small>명</small>',extra:'<span class="delta flat">주/월 집계: 권한 제약</span>',sub:'사용자목록 API 권한 필요'},
    {label:'누적 회원',val:fmt(T.userTotal)+'<small>명</small>',extra:'<span class="delta up">인증률 '+(T.userVerified/(T.userVerified+T.userUnverified)*100).toFixed(1)+'%</span>',sub:'인증 '+fmt(T.userVerified)+' / 미인증 '+fmt(T.userUnverified)},
+  ].map(cardHTML).join(''));
+  const hCur=heroNewN(g,false),hPrev=heroNewN(g,true);
+  setHTML('k-hero',[
    {label:'신규 히어로 ('+PLBL[g]+')',val:fmt(hCur)+'<small>명</small>',extra:deltaHtml(pdelta(hCur,hPrev))+' <span class="sub2">직전 '+hPrev+'명</span>',sub:'오늘 +'+fmt(T.newHeroToday)+' · 누적 '+fmt(T.heroTotal)},
    {label:'누적 히어로',val:fmt(T.heroTotal)+'<small>명</small>',extra:'<span class="delta up">활동 '+fmt(T.heroActive)+'</span>',sub:'활동 비중 '+(T.heroActive/T.heroTotal*100).toFixed(0)+'%'},
   ].map(cardHTML).join(''));
@@ -361,19 +371,19 @@ function setHTML(id,h){const e=el(id);if(e)e.innerHTML=h;}
 function mk(id,cfg){if(!HAS_CHART)return;const cv=el(id);if(!cv)return;try{destroy(id);charts[id]=new Chart(cv,cfg);}catch(e){console.error('chart',id,e);}}
 function granText(){return GRAN==='day'?'(일자별)':GRAN==='week'?'(주별)':'(월별)';}
 
-function ovCard(k){return '<div class="card"><div class="label">'+k.label+'</div><div class="val">'+k.val+'</div>'+(k.extra||'')+'<div class="ovwow">📈 주간 추세 '+(k.wow||'<span class="delta flat">—</span>')+'</div>'+(k.cum?'<div class="subcard"><span class="sc-l">누적</span> '+k.cum+'</div>':'')+(k.sub?'<div class="sub2">'+k.sub+'</div>':'')+(k.goto?'<button class="detail-btn" data-go="'+k.goto+'">자세히 보기 →</button>':'')+'</div>';}
+function ovCard(k){return '<div class="card"><div class="label">'+k.label+'</div><div class="val">'+k.val+'</div>'+(k.extra||'')+(k.wow?'<div class="ovwow">📈 주간 추세 '+k.wow+'</div>':'')+(k.cum?'<div class="subcard"><span class="sc-l">누적</span> '+k.cum+'</div>':'')+(k.sub?'<div class="sub2">'+k.sub+'</div>':'')+(k.goto?'<button class="detail-btn" data-go="'+k.goto+'">자세히 보기 →</button>':'')+'</div>';}
 function renderOverview(g){
   const ak=DATA.appByKind, rv=DATA.review, rg=DATA.region, cp=DATA.coupon;
   const pair=o=>'iOS '+fmt(o.ios)+' · AOS '+fmt(o.aos);
   const wow=(cur,prev)=>deltaHtml(pdelta(cur,prev));
   const collW=p=>DATA.collectionDaily.filter(c=>inWin(c.date,p?7:0,7)).reduce((s,c)=>s+(c.completed||0),0);
-  const na='<span class="delta flat">— (주간 집계 제약)</span>';
   // 최근 7일(주간) 수치
   const hW=heroNewN('week',false), hWp=heroNewN('week',true);
   const rW=paySumN('week',false,true), rWp=paySumN('week',true,true);
   const cW=collW(false), cWp=collW(true);
+  const revTotal=DATA.payments.reduce((s,p)=>s+p.amount,0);
   const cards=[
-   {label:'신규 회원 (오늘)',val:fmt(T.newUserToday)+'<small>명</small>',extra:'<span class="delta up">인증률 '+(T.userVerified/(T.userVerified+T.userUnverified)*100).toFixed(1)+'%</span>',cum:fmt(T.userTotal)+'명',wow:na,goto:'c1',sub:'주/월 신규는 권한 제약'},
+   {label:'신규 회원 (오늘)',val:fmt(T.newUserToday)+'<small>명</small>',extra:'<span class="delta up">인증률 '+(T.userVerified/(T.userVerified+T.userUnverified)*100).toFixed(1)+'%</span>',cum:fmt(T.userTotal)+'명',wow:null,goto:'c1',sub:'주/월 신규는 권한 제약'},
    {label:'신규 히어로 (최근 7일)',val:fmt(hW)+'<small>명</small>',extra:'<span class="delta flat">오늘 +'+fmt(T.newHeroToday)+'</span>',cum:fmt(T.heroTotal)+'명 · 활동 '+fmt(T.heroActive),wow:wow(hW,hWp),goto:'c1'},
   ];
   if(ak){const uW=dlSum(ak.user.combinedDaily,'week',false),uWp=dlSum(ak.user.combinedDaily,'week',true),hwW=dlSum(ak.hero.combinedDaily,'week',false),hwWp=dlSum(ak.hero.combinedDaily,'week',true);
@@ -383,18 +393,18 @@ function renderOverview(g){
    );
   }
   cards.push(
-   {label:'주간 매출 (최근 7일)',val:won(rW),extra:'<span class="delta flat">당월 '+won(revMonth)+' '+deltaHtml(momRev)+'</span>',cum:'결제 '+fmt(payTotal)+'건',wow:wow(rW,rWp),goto:'c3'},
+   {label:'주간 매출 (최근 7일)',val:won(rW),extra:'<span class="delta flat">당월 '+won(revMonth)+' '+deltaHtml(momRev)+'</span>',cum:won(revTotal)+' (누적 매출)',wow:wow(rW,rWp),goto:'c3'},
    {label:'주간 수거 (최근 7일)',val:fmt(cW)+'<small>건</small>',extra:'<span class="delta '+(rg.uncollRate<5?'up':'down')+'">미수거율 '+rg.uncollRate.toFixed(1)+'%</span>',cum:fmt(rg.totalCompleted)+'건 · '+rg.totalWeight.toFixed(1)+'kg',wow:wow(cW,cWp),goto:'c4'},
-   {label:'쿠폰 활성화율',val:cp.actRate.toFixed(1)+'<small>%</small>',extra:'<span class="delta flat">등록 '+cp.reg+'/배포 '+cp.dist+'</span>',cum:'사용전환 '+cp.useConv.toFixed(1)+'%',wow:na,goto:'c5'}
+   {label:'쿠폰 등록 / 배포',val:fmt(cp.reg)+'<small> / '+fmt(cp.dist)+' 건</small>',extra:'<span class="delta flat">미등록 '+cp.zeroCount+'곳</span>',sub:'사용전환율 '+cp.useConv.toFixed(1)+'%',wow:null,goto:'c5'}
   );
-  if(rv)cards.push({label:'레뷰 체험단 진행율',val:rv.rate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(rv.done?'up':'flat')+'">완료 '+rv.done+'/'+rv.total+'</span>',cum:'미완료 '+rv.pending+'건',wow:na,goto:'c6'});
+  if(rv)cards.push({label:'레뷰 체험단 진행율',val:rv.rate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(rv.done?'up':'flat')+'">완료 '+rv.done+'/'+rv.total+'</span>',sub:'미완료 '+rv.pending+'건',wow:null,goto:'c6'});
   if(DATA.meta){const M=DATA.meta,md=M.derived;
     const adSum=p=>Object.entries(M.accountDaily).filter(([d])=>inWin(d,p?7:0,7)).reduce((s,[,v])=>s+v.spend,0);
     const aW=adSum(false),aWp=adSum(true);
     cards.push(
      {label:'📣 주간 광고지출 (최근 7일)',val:won(aW),extra:'<span class="delta flat">CTR '+M.accountTotal.ctr.toFixed(2)+'% · CPC ₩'+fmt(Math.round(M.accountTotal.cpc))+'</span>',cum:won(M.accountTotal.spend)+' (노출 '+fmt(M.accountTotal.impressions)+')',wow:wow(aW,aWp),goto:'c7'},
-     {label:'사용자 모집 CPI',val:(md&&md.cpi.total!=null)?won(Math.round(md.cpi.total)):'—',extra:'<span class="delta flat">iOS ₩'+(md?fmt(Math.round(md.cpi.ios||0)):'-')+' · AOS ₩'+(md?fmt(Math.round(md.cpi.aos||0)):'-')+'</span>',cum:'앱설치지출 '+won(M.appInstall.total.spend),wow:na,goto:'c7'},
-     {label:'히어로 모집 CPC',val:(md&&md.recruitCPC!=null)?won(Math.round(md.recruitCPC)):'—',extra:'<span class="delta flat">클릭 '+fmt(M.recruitment.totals.clicks)+'</span>',cum:'모집지출 '+won(M.recruitment.totals.spend),wow:na,goto:'c7'}
+     {label:'사용자 모집 CPI',val:(md&&md.cpi.total!=null)?won(Math.round(md.cpi.total)):'—',extra:'<span class="delta flat">iOS ₩'+(md?fmt(Math.round(md.cpi.ios||0)):'-')+' · AOS ₩'+(md?fmt(Math.round(md.cpi.aos||0)):'-')+'</span>',cum:'앱설치지출 '+won(M.appInstall.total.spend),wow:null,goto:'c7'},
+     {label:'히어로 모집 CPC',val:(md&&md.recruitCPC!=null)?won(Math.round(md.recruitCPC)):'—',extra:'<span class="delta flat">클릭 '+fmt(M.recruitment.totals.clicks)+'</span>',cum:'모집지출 '+won(M.recruitment.totals.spend),wow:null,goto:'c7'}
     );
   }
   setHTML('k-overview',cards.map(ovCard).join(''));
@@ -423,7 +433,14 @@ function renderTrends(){
   try{renderOverview(g);renderUser(g);renderSales(g);}catch(e){console.error('cards',e);}
   try{renderAppKind(g);}catch(e){console.error('appKind',e);}
   try{renderMeta(g);}catch(e){console.error('meta',e);}
-  ['g-hero','g-rev','g-pay','g-coll'].forEach(id=>setText(id,granText()));
+  ['g-hero','g-rev','g-pay','g-coll','g-user'].forEach(id=>setText(id,granText()));
+  // 이용자 신규 유입 추이 (사용자앱 설치 기준)
+  if(DATA.appByKind){const ud=Object.entries(DATA.appByKind.user.combinedDaily).map(([date,v])=>({date,v}));const us=seriesSum(ud,g,'v');let uc=0;const ucum=us.map(x=>uc+=x.v);
+    mk('userTrend',{data:{labels:us.map(x=>blabel(x.k,g)),datasets:[
+      {type:'bar',label:'신규 유입',data:us.map(x=>x.v),backgroundColor:'#4f7cff',borderRadius:4,yAxisID:'y'},
+      {type:'line',label:'누적',data:ucum,borderColor:'#22c55e',backgroundColor:'#22c55e',tension:.3,yAxisID:'y1'}
+    ]},options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},scales:{y:{position:'left'},y1:{position:'right',grid:{drawOnChartArea:false}}}}});
+  }
   // 히어로 신규/누적
   const hs=seriesFromDates(DATA.heroSignups,g);let cum=0;const hcum=hs.map(x=>cum+=x.v);
   mk('heroTrend',{data:{labels:hs.map(x=>blabel(x.k,g)),datasets:[
