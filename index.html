@@ -36,9 +36,12 @@
   .seg{display:inline-flex;background:var(--card2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
   .seg button{padding:8px 16px;background:none;border:none;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer}
   .seg button.active{background:var(--accent);color:#fff}
-  .tabs{display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--line)}
-  .tab{padding:11px 22px;cursor:pointer;font-size:15px;font-weight:600;color:var(--sub);background:none;border:none;border-bottom:2px solid transparent}
+  .tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .tab{padding:10px 16px;cursor:pointer;font-size:14px;font-weight:600;color:var(--sub);background:none;border:none;border-bottom:2px solid transparent;white-space:nowrap}
+  .tab .ico{font-size:13px;margin-right:3px}
+  .tab:hover{color:var(--txt)}
   .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  h2.sec{font-size:18px;margin-bottom:16px;color:var(--txt)}
   .panel{display:none}.panel.active{display:block;animation:fade .25s}
   @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
   .cat{margin-bottom:26px}
@@ -79,7 +82,7 @@
 </style></head>
 <body><div class="wrap">
   <header>
-    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 01:46 KST</span></h1>
+    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 02:03 KST</span></h1>
     <div class="gran">
       <span class="lbl">📅 기간 단위</span>
       <div class="seg" id="granSeg">
@@ -91,93 +94,81 @@
   </header>
 
   <div class="tabs">
-    <button class="tab active" data-tab="t1">📊 핵심 지표</button>
-    <button class="tab" data-tab="t2">📋 상세 데이터</button>
+    <button class="tab active" data-tab="c1"><span class="ico">👥</span> 이용자 &amp; 히어로</button>
+    <button class="tab" data-tab="c2"><span class="ico">📲</span> 앱 다운로드</button>
+    <button class="tab" data-tab="c3"><span class="ico">💳</span> 매출 현황</button>
+    <button class="tab" data-tab="c4"><span class="ico">♻️</span> 수거 실적</button>
+    <button class="tab" data-tab="c5"><span class="ico">🎫</span> 대리점 미션</button>
+    <button class="tab" data-tab="c6"><span class="ico">📝</span> 레뷰 체험단</button>
   </div>
 
-  <!-- ===== 탭1: 핵심지표 (카테고리별) ===== -->
-  <section class="panel active" id="t1">
-
-    <div class="cat">
-      <div class="cat-head"><h2><span class="ico">👥</span>1. 이용자 & 히어로</h2><button class="jump" data-go="d-user">상세 보기 →</button></div>
-      <div class="grid kpis" id="k-user"></div>
+  <!-- c1: 이용자 & 히어로 -->
+  <section class="panel active" id="c1">
+    <h2 class="sec">👥 이용자 &amp; 히어로</h2>
+    <div class="grid kpis" id="k-user"></div>
+    <div class="grid charts" style="margin-top:14px">
+      <div class="chart-card"><h3>히어로 신규/누적 추이 <span class="sub2" id="g-hero"></span></h3><div class="chart-box"><canvas id="heroTrend"></canvas></div></div>
+      <div class="chart-card"><h3>회원 구성 (인증/미인증)</h3><div class="chart-box"><canvas id="memberDonut"></canvas></div></div>
     </div>
-
-    <div class="cat">
-      <div class="cat-head"><h2><span class="ico">💳</span>2. 매출 현황</h2><button class="jump" data-go="d-sales">상세 보기 →</button></div>
-      <div class="grid kpis" id="k-sales"></div>
-    </div>
-
-    <div class="cat">
-      <div class="cat-head"><h2><span class="ico">♻️</span>3. 히어로 수거 실적 현황</h2><button class="jump" data-go="d-coll">상세 보기 →</button></div>
-      <div class="grid kpis" id="k-coll"></div>
-    </div>
-
-    <div class="cat">
-      <div class="cat-head"><h2><span class="ico">🎫</span>4. 대리점 미션 현황</h2><button class="jump" data-go="d-coupon">상세 보기 →</button></div>
-      <div class="grid kpis" id="k-coupon"></div>
-    </div>
-
-    <div class="cat">
-      <div class="cat-head"><h2><span class="ico">📝</span>5. 레뷰 체험단 진행 현황</h2><button class="jump" data-go="d-review">상세 보기 →</button></div>
-      <div class="grid kpis" id="k-review"></div>
-    </div>
+    <div class="scroll" style="margin-top:13px;max-height:340px"><table id="heroTable"></table></div>
   </section>
 
-  <!-- ===== 탭2: 상세 데이터 (카테고리별 섹션) ===== -->
-  <section class="panel" id="t2">
-    <div class="detail-sec" id="d-user">
-      <h2>1. 이용자 & 히어로 상세</h2>
-      <div class="grid charts">
-        <div class="chart-card"><h3>히어로 신규/누적 추이 <span class="sub2" id="g-hero"></span></h3><div class="chart-box"><canvas id="heroTrend"></canvas></div></div>
-        <div class="chart-card"><h3>회원 구성 (인증/미인증)</h3><div class="chart-box"><canvas id="memberDonut"></canvas></div></div>
-      </div>
-      <div class="grid charts" style="margin-top:13px">
-        <div class="chart-card"><h3>📲 앱 다운로드 추이 (iOS/AOS/통합) <span class="sub2" id="g-appdl"></span></h3><div class="chart-box"><canvas id="appTrend"></canvas></div></div>
-        <div class="chart-card"><h3>앱별 누적 다운로드</h3><div class="chart-box"><canvas id="appBar"></canvas></div></div>
-      </div>
-      <div class="scroll" style="margin-top:13px;max-height:340px"><table id="heroTable"></table></div>
-      <div class="scroll" style="margin-top:13px"><table id="appTable"></table></div>
+  <!-- c2: 앱 다운로드 -->
+  <section class="panel" id="c2">
+    <h2 class="sec">📲 앱 다운로드</h2>
+    <div class="grid kpis" id="k-app"></div>
+    <div class="grid charts" style="margin-top:14px">
+      <div class="chart-card"><h3>앱 다운로드 추이 (iOS/AOS/통합) <span class="sub2" id="g-appdl"></span></h3><div class="chart-box"><canvas id="appTrend"></canvas></div></div>
+      <div class="chart-card"><h3>앱별 누적 다운로드</h3><div class="chart-box"><canvas id="appBar"></canvas></div></div>
     </div>
-
-    <div class="detail-sec" id="d-sales">
-      <h2>2. 매출 현황 상세</h2>
-      <div class="grid charts">
-        <div class="chart-card"><h3>매출 추이 <span class="sub2" id="g-rev"></span></h3><div class="chart-box"><canvas id="revTrend"></canvas></div></div>
-        <div class="chart-card"><h3>결제 건수 추이 <span class="sub2" id="g-pay"></span></h3><div class="chart-box"><canvas id="payTrend"></canvas></div></div>
-      </div>
-      <div class="scroll" style="margin-top:13px;max-height:340px"><table id="salesTable"></table></div>
-    </div>
-
-    <div class="detail-sec" id="d-coll">
-      <h2>3. 히어로 수거 실적 상세</h2>
-      <div class="grid charts">
-        <div class="chart-card"><h3>수거 추이 <span class="sub2" id="g-coll"></span></h3><div class="chart-box"><canvas id="collTrend"></canvas></div></div>
-        <div class="chart-card"><h3>지역별 수거 TOP</h3><div class="chart-box"><canvas id="regionChart"></canvas></div></div>
-      </div>
-      <div class="scroll" style="margin-top:13px;max-height:340px"><table id="agencyTable"></table></div>
-    </div>
-
-    <div class="detail-sec" id="d-coupon">
-      <h2>4. 대리점 미션 상세 (쿠폰 39곳)</h2>
-      <div class="scroll"><table id="dealerTable"></table></div>
-    </div>
-
-    <div class="detail-sec" id="d-review">
-      <h2>5. 레뷰 체험단 진행 상세 (8명 · 완료 1/미완료 7)</h2>
-      <div class="grid charts">
-        <div class="chart-card"><h3>업로드 완료 현황</h3><div class="chart-box"><canvas id="reviewDonut"></canvas></div></div>
-        <div class="chart-card"><h3>채널별 진행</h3><div class="chart-box"><canvas id="reviewBar"></canvas></div></div>
-      </div>
-      <div class="scroll" style="margin-top:13px"><table id="reviewTable"></table></div>
-    </div>
+    <div class="scroll" style="margin-top:13px"><table id="appTable"></table></div>
   </section>
 
-  <footer>※ 회원 주/월 신규 집계는 사용자목록 API 권한 제약으로 '오늘'만 표기(누적은 라이브). 수거 일별은 최근 7일 제공. 🔒 공개용: 개인정보(대표자·리뷰어명) 마스킹. 기간 단위(일/주/월)는 상세 추이 차트에 적용됩니다.</footer>
+  <!-- c3: 매출 현황 -->
+  <section class="panel" id="c3">
+    <h2 class="sec">💳 매출 현황</h2>
+    <div class="grid kpis" id="k-sales"></div>
+    <div class="grid charts" style="margin-top:14px">
+      <div class="chart-card"><h3>매출 추이 <span class="sub2" id="g-rev"></span></h3><div class="chart-box"><canvas id="revTrend"></canvas></div></div>
+      <div class="chart-card"><h3>결제 건수 추이 <span class="sub2" id="g-pay"></span></h3><div class="chart-box"><canvas id="payTrend"></canvas></div></div>
+    </div>
+    <div class="scroll" style="margin-top:13px;max-height:340px"><table id="salesTable"></table></div>
+  </section>
+
+  <!-- c4: 수거 실적 -->
+  <section class="panel" id="c4">
+    <h2 class="sec">♻️ 히어로 수거 실적</h2>
+    <div class="grid kpis" id="k-coll"></div>
+    <div class="grid charts" style="margin-top:14px">
+      <div class="chart-card"><h3>수거 추이 <span class="sub2" id="g-coll"></span></h3><div class="chart-box"><canvas id="collTrend"></canvas></div></div>
+      <div class="chart-card"><h3>지역별 수거 TOP</h3><div class="chart-box"><canvas id="regionChart"></canvas></div></div>
+    </div>
+    <div class="scroll" style="margin-top:13px;max-height:340px"><table id="agencyTable"></table></div>
+  </section>
+
+  <!-- c5: 대리점 미션 -->
+  <section class="panel" id="c5">
+    <h2 class="sec">🎫 대리점 미션 (쿠폰 39곳)</h2>
+    <div class="grid kpis" id="k-coupon"></div>
+    <div class="scroll" style="margin-top:14px"><table id="dealerTable"></table></div>
+  </section>
+
+  <!-- c6: 레뷰 체험단 -->
+  <section class="panel" id="c6">
+    <h2 class="sec">📝 레뷰 체험단 (8명 · 완료 1/미완료 7)</h2>
+    <div class="grid kpis" id="k-review"></div>
+    <div class="grid charts" style="margin-top:14px">
+      <div class="chart-card"><h3>업로드 완료 현황</h3><div class="chart-box"><canvas id="reviewDonut"></canvas></div></div>
+      <div class="chart-card"><h3>채널별 진행</h3><div class="chart-box"><canvas id="reviewBar"></canvas></div></div>
+    </div>
+    <div class="scroll" style="margin-top:13px"><table id="reviewTable"></table></div>
+  </section>
+
+  <footer>※ 카테고리별 탭으로 구분. 기간 단위(일/주/월)는 우측 상단에서 선택(추이 차트·기간 KPI에 적용). 회원 주/월 신규는 사용자목록 API 권한 제약으로 '오늘'만 표기(누적은 라이브). 수거 일별은 최근 7일 제공. 🔒 공개용: 개인정보(대표자·리뷰어명) 마스킹.</footer>
 </div>
 
 <script>
-const DATA = {"asOf":"2026-06-01","totals":{"userTotal":1638,"userToday":16,"userVerified":658,"userUnverified":980,"heroTotal":139,"heroActive":69,"newUserToday":16,"newHeroToday":0},"heroSignups":["2026-03-25","2026-03-25","2026-03-25","2026-03-27","2026-03-27","2026-03-30","2026-04-08","2026-04-09","2026-04-09","2026-04-10","2026-04-11","2026-04-13","2026-04-14","2026-04-14","2026-04-15","2026-04-16","2026-04-20","2026-04-20","2026-04-21","2026-04-21","2026-04-22","2026-04-22","2026-04-23","2026-04-23","2026-04-23","2026-04-23","2026-04-23","2026-04-26","2026-04-27","2026-04-27","2026-04-27","2026-04-27","2026-04-28","2026-04-28","2026-04-29","2026-04-29","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-05-02","2026-05-02","2026-05-03","2026-05-04","2026-05-04","2026-05-04","2026-05-04","2026-05-04","2026-05-06","2026-05-07","2026-05-07","2026-05-07","2026-05-07","2026-05-07","2026-05-08","2026-05-08","2026-05-11","2026-05-11","2026-05-11","2026-05-12","2026-05-13","2026-05-13","2026-05-13","2026-05-14","2026-05-14","2026-05-14","2026-05-14","2026-05-14","2026-05-15","2026-05-15","2026-05-15","2026-05-15","2026-05-16","2026-05-16","2026-05-16","2026-05-16","2026-05-16","2026-05-18","2026-05-18","2026-05-19","2026-05-19","2026-05-20","2026-05-20","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-24","2026-05-26","2026-05-26","2026-05-26","2026-05-27","2026-05-27","2026-05-27","2026-05-28","2026-05-29","2026-05-29","2026-05-30","2026-05-31","2026-05-31","2026-05-31","2026-05-31"],"payments":[{"date":"2026-06-01","amount":19900},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":15800},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":1500},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":6700},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":6400},{"date":"2026-05-29","amount":4320},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":6200},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":2540},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":5200},{"date":"2026-05-28","amount":0},{"date":"2026-05-28","amount":0},{"date":"2026-05-28","amount":5200},{"date":"2026-05-28","amount":0},{"date":"2026-05-28","amount":2840},{"date":"2026-05-28","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":1500},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-26","amount":7820},{"date":"2026-05-25","amount":0},{"date":"2026-05-25","amount":0},{"date":"2026-05-25","amount":0},{"date":"2026-05-25","amount":0},{"date":"2026-05-24","amount":0},{"date":"2026-05-23","amount":0},{"date":"2026-05-22","amount":8360},{"date":"2026-05-22","amount":9000},{"date":"2026-05-22","amount":9000},{"date":"2026-05-22","amount":540},{"date":"2026-05-22","amount":2960},{"date":"2026-05-22","amount":0},{"date":"2026-05-22","amount":220},{"date":"2026-05-21","amount":0},{"date":"2026-05-20","amount":0},{"date":"2026-05-17","amount":16640},{"date":"2026-05-16","amount":19900},{"date":"2026-05-14","amount":6500},{"date":"2026-05-14","amount":6500},{"date":"2026-05-13","amount":0},{"date":"2026-05-13","amount":0},{"date":"2026-05-13","amount":0},{"date":"2026-05-09","amount":24500},{"date":"2026-05-08","amount":0},{"date":"2026-05-08","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-06","amount":0},{"date":"2026-05-06","amount":0},{"date":"2026-05-06","amount":0},{"date":"2026-05-05","amount":6100},{"date":"2026-05-02","amount":0},{"date":"2026-05-01","amount":17000},{"date":"2026-05-01","amount":6500},{"date":"2026-04-30","amount":0},{"date":"2026-04-30","amount":0},{"date":"2026-04-30","amount":0},{"date":"2026-04-30","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-28","amount":0},{"date":"2026-04-28","amount":0},{"date":"2026-04-27","amount":0},{"date":"2026-04-27","amount":0},{"date":"2026-04-27","amount":1500},{"date":"2026-04-27","amount":0},{"date":"2026-04-24","amount":9140},{"date":"2026-04-24","amount":0},{"date":"2026-04-24","amount":0},{"date":"2026-04-24","amount":0},{"date":"2026-04-24","amount":1500},{"date":"2026-04-23","amount":6500},{"date":"2026-04-23","amount":12500},{"date":"2026-04-23","amount":0},{"date":"2026-04-22","amount":5260},{"date":"2026-04-22","amount":0},{"date":"2026-04-21","amount":7640},{"date":"2026-04-21","amount":0},{"date":"2026-04-13","amount":0},{"date":"2026-04-13","amount":0},{"date":"2026-04-08","amount":0},{"date":"2026-04-06","amount":29060},{"date":"2026-04-06","amount":9000},{"date":"2026-04-01","amount":9000},{"date":"2026-03-25","amount":6500}],"collectionDaily":[{"date":"2026-05-26","total":2,"completed":1,"cancelled":1,"impossible":0},{"date":"2026-05-27","total":6,"completed":4,"cancelled":2,"impossible":0},{"date":"2026-05-28","total":6,"completed":5,"cancelled":1,"impossible":0},{"date":"2026-05-29","total":10,"completed":8,"cancelled":2,"impossible":0},{"date":"2026-05-30","total":5,"completed":5,"cancelled":0,"impossible":0},{"date":"2026-05-31","total":5,"completed":5,"cancelled":0,"impossible":0},{"date":"2026-06-01","total":1,"completed":0,"cancelled":0,"impossible":0}],"collectionMonths":[{"ym":"2026-02","agency_count":45,"total_uncollected_count":0,"total_collected_count":0,"total_weight_kg":0,"total_uncollected_rate":0},{"ym":"2026-03","agency_count":45,"total_uncollected_count":0,"total_collected_count":0,"total_weight_kg":0,"total_uncollected_rate":0},{"ym":"2026-04","agency_count":45,"total_uncollected_count":0,"total_collected_count":12,"total_weight_kg":64.4,"total_uncollected_rate":0},{"ym":"2026-05","agency_count":45,"total_uncollected_count":0,"total_collected_count":41,"total_weight_kg":151.9,"total_uncollected_rate":0},{"ym":"2026-06","agency_count":45,"total_uncollected_count":0,"total_collected_count":0,"total_weight_kg":0,"total_uncollected_rate":0}],"agencyPerf":[{"agency":"광주 광산대리점","collected":18,"uncollected":0,"weight":31.2},{"agency":"철원근북면","collected":13,"uncollected":0,"weight":66.30000000000001},{"agency":"부산 진구 대리점","collected":4,"uncollected":0,"weight":50},{"agency":"해운대 대리점","collected":4,"uncollected":0,"weight":22.1},{"agency":"대전 중구 대리점","collected":3,"uncollected":0,"weight":7.6},{"agency":"부산 남구점","collected":3,"uncollected":0,"weight":3.9},{"agency":"인천 중구대리점","collected":2,"uncollected":0,"weight":9.8},{"agency":"거제대리점","collected":1,"uncollected":0,"weight":7},{"agency":"대구 달서대리점","collected":1,"uncollected":0,"weight":1.8},{"agency":"부산 수영대리점","collected":1,"uncollected":0,"weight":1.6},{"agency":"수원대리점","collected":1,"uncollected":0,"weight":3},{"agency":"이천 대리점","collected":1,"uncollected":0,"weight":6.8},{"agency":"천안 동남구","collected":1,"uncollected":0,"weight":5.2}],"region":{"top":[{"region":"광주","collected":18},{"region":"철원근북면","collected":13},{"region":"부산","collected":8},{"region":"해운대","collected":4},{"region":"대전","collected":3},{"region":"인천","collected":2},{"region":"거제대리점","collected":1},{"region":"대구","collected":1},{"region":"수원대리점","collected":1},{"region":"이천","collected":1},{"region":"천안","collected":1}],"totalCompleted":53,"totalWeight":216.3,"uncollRate":0},"coupon":{"dist":652,"reg":30,"used":12,"actRate":4.601226993865031,"useConv":40,"zeroCount":27,"dealers":[{"name":"광주 광산구 서구 대리점","rep":"김OOO","dist":19,"reg":10,"used":7,"act":52.63157894736842,"conv":70},{"name":"전주 완산구 대리점","rep":"오OO","dist":14,"reg":5,"used":0,"act":35.714285714285715,"conv":0},{"name":"대전 대리점","rep":"황OO","dist":17,"reg":4,"used":2,"act":23.52941176470588,"conv":50},{"name":"삼척 대리점","rep":"조OO","dist":20,"reg":2,"used":0,"act":10,"conv":0},{"name":"부산남구대리점","rep":"탁OO","dist":13,"reg":2,"used":1,"act":15.384615384615385,"conv":50},{"name":"대구 달서구대리점📞","rep":"박OO","dist":18,"reg":1,"used":1,"act":5.555555555555555,"conv":100},{"name":"김해대리점","rep":"황OO","dist":15,"reg":1,"used":0,"act":6.666666666666667,"conv":0},{"name":"천안 동남구 대리점","rep":"김OO","dist":15,"reg":1,"used":1,"act":6.666666666666667,"conv":100},{"name":"천안 서북구 대리점","rep":"김OO","dist":14,"reg":1,"used":0,"act":7.142857142857142,"conv":0},{"name":"전남 여수 대리점","rep":"유OO","dist":13,"reg":1,"used":0,"act":7.6923076923076925,"conv":0},{"name":"경기 이천 대리점","rep":"서OO","dist":13,"reg":1,"used":0,"act":7.6923076923076925,"conv":0},{"name":"인천 영종도 대리점","rep":"유OO","dist":11,"reg":1,"used":0,"act":9.090909090909092,"conv":0},{"name":"경기도 의정부,  강북구 대리점","rep":"현OO","dist":30,"reg":0,"used":0,"act":0,"conv":0},{"name":"울산 대리점","rep":"최OO","dist":27,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 고양 대리점","rep":"이OO","dist":26,"reg":0,"used":0,"act":0,"conv":0},{"name":"창원대리점","rep":"김OO","dist":26,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기수원대리점","rep":"김OO","dist":25,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 부천대리점","rep":"이OO","dist":22,"reg":0,"used":0,"act":0,"conv":0},{"name":"서울 동대문구, 성북구 대리점","rep":"박OO","dist":21,"reg":0,"used":0,"act":0,"conv":0},{"name":"인천 대리점(서해구/검단구)","rep":"송OO","dist":19,"reg":0,"used":0,"act":0,"conv":0},{"name":"서울 강남구 대리점","rep":"신OO","dist":18,"reg":0,"used":0,"act":0,"conv":0},{"name":"충북 청주 대리점","rep":"정OO","dist":18,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 김포 대리점","rep":"이OO","dist":17,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 파주대리점📞","rep":"최OO","dist":17,"reg":0,"used":0,"act":0,"conv":0},{"name":"구미 대리점","rep":"김OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"해운대 대리점","rep":"윤OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"광주 북구대리점📞","rep":"손OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 광주 대리점","rep":"서OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"전주-덕진구, 완주군 대리점","rep":"임OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"경남 진주 대리점📞","rep":"박OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"부산진구대리점","rep":"신OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"장유 대리점","rep":"화OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경남 거제 대리점","rep":"김OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경주 불국사히어로","rep":"서OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 양주 대리점","rep":"송OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"수영구 대리점","rep":"송OO","dist":12,"reg":0,"used":0,"act":0,"conv":0},{"name":"연제구대리점","rep":"이OO","dist":12,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 대리점(여주시)","rep":"김OO","dist":10,"reg":0,"used":0,"act":0,"conv":0},{"name":"광주 동구대리점📞","rep":"엄OO","dist":10,"reg":0,"used":0,"act":0,"conv":0}]},"review":{"total":8,"done":1,"pending":7,"rate":12.5,"byCategory":{"블로그":{"total":3,"done":1},"인스타":{"total":5,"done":0}},"latest":"2026-05-27","items":[{"handle":"행복한쀼","category":"블로그","region":"광주 광산동","status":"완료","name":"전OO","title":"광주 광산구 수완동 분리수거대행 수거히어로가격 솔직 후기","url":"https://blog.naver.com/1009ssun/224298285163"},{"handle":"해토리님","category":"블로그","region":"부산진구","status":"미완료","name":"김OO","title":"","url":""},{"handle":"불꽃파이리","category":"블로그","region":"경기 의정부 신곡동","status":"미완료","name":"김OO","title":"","url":""},{"handle":"루루민","category":"인스타","region":"경기 파주시","status":"미완료","name":"최OO","title":"","url":""},{"handle":"미미럽","category":"인스타","region":"경기 의정부시 동이로","status":"미완료","name":"최OO","title":"","url":""},{"handle":"하람구름엄마","category":"인스타","region":"서울 노원구 화랑로","status":"미완료","name":"이OO","title":"","url":""},{"handle":"윰레빗","category":"인스타","region":"경기 파주시","status":"미완료","name":"최OO","title":"","url":""},{"handle":"태콤달콤","category":"인스타","region":"경기 파주시","status":"미완료","name":"김OO","title":"","url":""}]},"appdl":{"totals":{"ios":760,"android":1395,"combined":2155},"combinedDaily":{"2026-03-23":18,"2026-03-24":28,"2026-03-25":23,"2026-03-26":8,"2026-03-27":21,"2026-03-28":4,"2026-03-30":11,"2026-04-01":4,"2026-04-02":4,"2026-04-03":3,"2026-04-06":13,"2026-04-07":23,"2026-04-08":9,"2026-04-09":3,"2026-04-10":5,"2026-04-13":53,"2026-04-14":19,"2026-04-15":11,"2026-04-16":4,"2026-04-17":14,"2026-04-18":15,"2026-04-19":2,"2026-04-21":22,"2026-04-22":19,"2026-04-23":40,"2026-04-24":30,"2026-04-25":31,"2026-04-26":68,"2026-04-27":53,"2026-04-28":64,"2026-04-29":46,"2026-04-30":61,"2026-05-01":26,"2026-05-02":30,"2026-05-03":39,"2026-05-04":34,"2026-05-05":44,"2026-05-06":42,"2026-05-07":47,"2026-05-08":54,"2026-05-09":39,"2026-05-10":35,"2026-05-11":53,"2026-05-12":46,"2026-05-13":42,"2026-05-14":33,"2026-05-15":44,"2026-05-16":39,"2026-05-17":39,"2026-05-18":43,"2026-05-19":51,"2026-05-20":60,"2026-05-21":44,"2026-05-22":77,"2026-05-23":40,"2026-05-24":42,"2026-05-25":53,"2026-05-26":38,"2026-05-27":42,"2026-05-28":30,"2026-05-29":63,"2026-05-30":70,"2026-05-31":59,"2026-06-01":2,"2026-03-29":1,"2026-03-31":4,"2026-04-04":2,"2026-04-11":3,"2026-04-12":3,"2026-04-20":13},"iosDaily":{"2026-03-23":4,"2026-03-24":10,"2026-03-25":11,"2026-03-26":3,"2026-03-27":8,"2026-03-28":2,"2026-03-29":1,"2026-03-30":7,"2026-03-31":3,"2026-04-01":1,"2026-04-02":2,"2026-04-04":2,"2026-04-06":5,"2026-04-07":11,"2026-04-08":1,"2026-04-11":1,"2026-04-12":3,"2026-04-13":25,"2026-04-14":3,"2026-04-15":6,"2026-04-17":4,"2026-04-18":4,"2026-04-19":1,"2026-04-20":9,"2026-04-21":5,"2026-04-22":9,"2026-04-23":2,"2026-04-24":5,"2026-04-25":13,"2026-04-26":29,"2026-04-27":16,"2026-04-28":25,"2026-04-29":20,"2026-04-30":11,"2026-05-01":6,"2026-05-02":6,"2026-05-03":10,"2026-05-04":13,"2026-05-05":17,"2026-05-06":11,"2026-05-07":20,"2026-05-08":18,"2026-05-09":19,"2026-05-10":16,"2026-05-11":20,"2026-05-12":11,"2026-05-13":14,"2026-05-14":12,"2026-05-15":16,"2026-05-16":14,"2026-05-17":13,"2026-05-18":13,"2026-05-19":14,"2026-05-20":20,"2026-05-21":18,"2026-05-22":47,"2026-05-23":16,"2026-05-24":10,"2026-05-25":12,"2026-05-26":16,"2026-05-27":20,"2026-05-28":10,"2026-05-29":18,"2026-05-30":25,"2026-05-31":20,"2026-04-03":1,"2026-04-09":1,"2026-04-16":1},"androidDaily":{"2026-03-23":14,"2026-03-24":18,"2026-03-25":12,"2026-03-26":5,"2026-03-27":13,"2026-03-28":2,"2026-03-30":4,"2026-04-01":3,"2026-04-02":2,"2026-04-03":2,"2026-04-06":8,"2026-04-07":12,"2026-04-08":8,"2026-04-09":2,"2026-04-10":5,"2026-04-13":28,"2026-04-14":16,"2026-04-15":5,"2026-04-16":3,"2026-04-17":10,"2026-04-18":11,"2026-04-19":1,"2026-04-21":17,"2026-04-22":10,"2026-04-23":38,"2026-04-24":25,"2026-04-25":18,"2026-04-26":39,"2026-04-27":37,"2026-04-28":39,"2026-04-29":26,"2026-04-30":50,"2026-05-01":20,"2026-05-02":24,"2026-05-03":29,"2026-05-04":21,"2026-05-05":27,"2026-05-06":31,"2026-05-07":27,"2026-05-08":36,"2026-05-09":20,"2026-05-10":19,"2026-05-11":33,"2026-05-12":35,"2026-05-13":28,"2026-05-14":21,"2026-05-15":28,"2026-05-16":25,"2026-05-17":26,"2026-05-18":30,"2026-05-19":37,"2026-05-20":40,"2026-05-21":26,"2026-05-22":30,"2026-05-23":24,"2026-05-24":32,"2026-05-25":41,"2026-05-26":22,"2026-05-27":22,"2026-05-28":20,"2026-05-29":45,"2026-05-30":45,"2026-05-31":39,"2026-06-01":2,"2026-03-31":1,"2026-04-11":2,"2026-04-20":4},"apps":[{"id":"com.monivon.sugohero.user","platform":"android","kind":"user","name":"사용자앱(AOS)","total":1122},{"id":"id6759431069","platform":"ios","kind":"user","name":"사용자앱(iOS)","total":633},{"id":"com.monivon.sugohero.hero","platform":"android","kind":"hero","name":"히어로앱(AOS)","total":273},{"id":"id6759631451","platform":"ios","kind":"hero","name":"히어로앱(iOS)","total":127}]}};
+const DATA = {"asOf":"2026-06-01","totals":{"userTotal":1638,"userToday":16,"userVerified":658,"userUnverified":980,"heroTotal":139,"heroActive":69,"newUserToday":16,"newHeroToday":0},"heroSignups":["2026-03-25","2026-03-25","2026-03-25","2026-03-27","2026-03-27","2026-03-30","2026-04-08","2026-04-09","2026-04-09","2026-04-10","2026-04-11","2026-04-13","2026-04-14","2026-04-14","2026-04-15","2026-04-16","2026-04-20","2026-04-20","2026-04-21","2026-04-21","2026-04-22","2026-04-22","2026-04-23","2026-04-23","2026-04-23","2026-04-23","2026-04-23","2026-04-26","2026-04-27","2026-04-27","2026-04-27","2026-04-27","2026-04-28","2026-04-28","2026-04-29","2026-04-29","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-05-02","2026-05-02","2026-05-03","2026-05-04","2026-05-04","2026-05-04","2026-05-04","2026-05-04","2026-05-06","2026-05-07","2026-05-07","2026-05-07","2026-05-07","2026-05-07","2026-05-08","2026-05-08","2026-05-11","2026-05-11","2026-05-11","2026-05-12","2026-05-13","2026-05-13","2026-05-13","2026-05-14","2026-05-14","2026-05-14","2026-05-14","2026-05-14","2026-05-15","2026-05-15","2026-05-15","2026-05-15","2026-05-16","2026-05-16","2026-05-16","2026-05-16","2026-05-16","2026-05-18","2026-05-18","2026-05-19","2026-05-19","2026-05-20","2026-05-20","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-24","2026-05-26","2026-05-26","2026-05-26","2026-05-27","2026-05-27","2026-05-27","2026-05-28","2026-05-29","2026-05-29","2026-05-30","2026-05-31","2026-05-31","2026-05-31","2026-05-31"],"payments":[{"date":"2026-06-01","amount":19900},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":15800},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":1500},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":6700},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":6400},{"date":"2026-05-29","amount":4320},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":6200},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":2540},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":5200},{"date":"2026-05-28","amount":0},{"date":"2026-05-28","amount":0},{"date":"2026-05-28","amount":5200},{"date":"2026-05-28","amount":0},{"date":"2026-05-28","amount":2840},{"date":"2026-05-28","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":1500},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-26","amount":7820},{"date":"2026-05-25","amount":0},{"date":"2026-05-25","amount":0},{"date":"2026-05-25","amount":0},{"date":"2026-05-25","amount":0},{"date":"2026-05-24","amount":0},{"date":"2026-05-23","amount":0},{"date":"2026-05-22","amount":8360},{"date":"2026-05-22","amount":9000},{"date":"2026-05-22","amount":9000},{"date":"2026-05-22","amount":540},{"date":"2026-05-22","amount":2960},{"date":"2026-05-22","amount":0},{"date":"2026-05-22","amount":220},{"date":"2026-05-21","amount":0},{"date":"2026-05-20","amount":0},{"date":"2026-05-17","amount":16640},{"date":"2026-05-16","amount":19900},{"date":"2026-05-14","amount":6500},{"date":"2026-05-14","amount":6500},{"date":"2026-05-13","amount":0},{"date":"2026-05-13","amount":0},{"date":"2026-05-13","amount":0},{"date":"2026-05-09","amount":24500},{"date":"2026-05-08","amount":0},{"date":"2026-05-08","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-06","amount":0},{"date":"2026-05-06","amount":0},{"date":"2026-05-06","amount":0},{"date":"2026-05-05","amount":6100},{"date":"2026-05-02","amount":0},{"date":"2026-05-01","amount":17000},{"date":"2026-05-01","amount":6500},{"date":"2026-04-30","amount":0},{"date":"2026-04-30","amount":0},{"date":"2026-04-30","amount":0},{"date":"2026-04-30","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-28","amount":0},{"date":"2026-04-28","amount":0},{"date":"2026-04-27","amount":0},{"date":"2026-04-27","amount":0},{"date":"2026-04-27","amount":1500},{"date":"2026-04-27","amount":0},{"date":"2026-04-24","amount":9140},{"date":"2026-04-24","amount":0},{"date":"2026-04-24","amount":0},{"date":"2026-04-24","amount":0},{"date":"2026-04-24","amount":1500},{"date":"2026-04-23","amount":6500},{"date":"2026-04-23","amount":12500},{"date":"2026-04-23","amount":0},{"date":"2026-04-22","amount":5260},{"date":"2026-04-22","amount":0},{"date":"2026-04-21","amount":7640},{"date":"2026-04-21","amount":0},{"date":"2026-04-13","amount":0},{"date":"2026-04-13","amount":0},{"date":"2026-04-08","amount":0},{"date":"2026-04-06","amount":29060},{"date":"2026-04-06","amount":9000},{"date":"2026-04-01","amount":9000},{"date":"2026-03-25","amount":6500}],"collectionDaily":[{"date":"2026-05-26","total":2,"completed":1,"cancelled":1,"impossible":0},{"date":"2026-05-27","total":6,"completed":4,"cancelled":2,"impossible":0},{"date":"2026-05-28","total":6,"completed":5,"cancelled":1,"impossible":0},{"date":"2026-05-29","total":10,"completed":8,"cancelled":2,"impossible":0},{"date":"2026-05-30","total":5,"completed":5,"cancelled":0,"impossible":0},{"date":"2026-05-31","total":5,"completed":5,"cancelled":0,"impossible":0},{"date":"2026-06-01","total":1,"completed":0,"cancelled":0,"impossible":0}],"collectionMonths":[{"ym":"2026-02","agency_count":45,"total_uncollected_count":0,"total_collected_count":0,"total_weight_kg":0,"total_uncollected_rate":0},{"ym":"2026-03","agency_count":45,"total_uncollected_count":0,"total_collected_count":0,"total_weight_kg":0,"total_uncollected_rate":0},{"ym":"2026-04","agency_count":45,"total_uncollected_count":0,"total_collected_count":12,"total_weight_kg":64.4,"total_uncollected_rate":0},{"ym":"2026-05","agency_count":45,"total_uncollected_count":0,"total_collected_count":41,"total_weight_kg":151.9,"total_uncollected_rate":0},{"ym":"2026-06","agency_count":45,"total_uncollected_count":0,"total_collected_count":0,"total_weight_kg":0,"total_uncollected_rate":0}],"agencyPerf":[{"agency":"광주 광산대리점","collected":18,"uncollected":0,"weight":31.2},{"agency":"철원근북면","collected":13,"uncollected":0,"weight":66.30000000000001},{"agency":"부산 진구 대리점","collected":4,"uncollected":0,"weight":50},{"agency":"해운대 대리점","collected":4,"uncollected":0,"weight":22.1},{"agency":"대전 중구 대리점","collected":3,"uncollected":0,"weight":7.6},{"agency":"부산 남구점","collected":3,"uncollected":0,"weight":3.9},{"agency":"인천 중구대리점","collected":2,"uncollected":0,"weight":9.8},{"agency":"거제대리점","collected":1,"uncollected":0,"weight":7},{"agency":"대구 달서대리점","collected":1,"uncollected":0,"weight":1.8},{"agency":"부산 수영대리점","collected":1,"uncollected":0,"weight":1.6},{"agency":"수원대리점","collected":1,"uncollected":0,"weight":3},{"agency":"이천 대리점","collected":1,"uncollected":0,"weight":6.8},{"agency":"천안 동남구","collected":1,"uncollected":0,"weight":5.2}],"region":{"top":[{"region":"광주","collected":18},{"region":"철원근북면","collected":13},{"region":"부산","collected":8},{"region":"해운대","collected":4},{"region":"대전","collected":3},{"region":"인천","collected":2},{"region":"거제대리점","collected":1},{"region":"대구","collected":1},{"region":"수원대리점","collected":1},{"region":"이천","collected":1},{"region":"천안","collected":1}],"totalCompleted":53,"totalWeight":216.3,"uncollRate":0},"coupon":{"dist":652,"reg":30,"used":12,"actRate":4.601226993865031,"useConv":40,"zeroCount":27,"dealers":[{"name":"광주 광산구 서구 대리점","rep":"김OOO","dist":19,"reg":10,"used":7,"act":52.63157894736842,"conv":70},{"name":"전주 완산구 대리점","rep":"오OO","dist":14,"reg":5,"used":0,"act":35.714285714285715,"conv":0},{"name":"대전 대리점","rep":"황OO","dist":17,"reg":4,"used":2,"act":23.52941176470588,"conv":50},{"name":"삼척 대리점","rep":"조OO","dist":20,"reg":2,"used":0,"act":10,"conv":0},{"name":"부산남구대리점","rep":"탁OO","dist":13,"reg":2,"used":1,"act":15.384615384615385,"conv":50},{"name":"대구 달서구대리점📞","rep":"박OO","dist":18,"reg":1,"used":1,"act":5.555555555555555,"conv":100},{"name":"김해대리점","rep":"황OO","dist":15,"reg":1,"used":0,"act":6.666666666666667,"conv":0},{"name":"천안 동남구 대리점","rep":"김OO","dist":15,"reg":1,"used":1,"act":6.666666666666667,"conv":100},{"name":"천안 서북구 대리점","rep":"김OO","dist":14,"reg":1,"used":0,"act":7.142857142857142,"conv":0},{"name":"전남 여수 대리점","rep":"유OO","dist":13,"reg":1,"used":0,"act":7.6923076923076925,"conv":0},{"name":"경기 이천 대리점","rep":"서OO","dist":13,"reg":1,"used":0,"act":7.6923076923076925,"conv":0},{"name":"인천 영종도 대리점","rep":"유OO","dist":11,"reg":1,"used":0,"act":9.090909090909092,"conv":0},{"name":"경기도 의정부,  강북구 대리점","rep":"현OO","dist":30,"reg":0,"used":0,"act":0,"conv":0},{"name":"울산 대리점","rep":"최OO","dist":27,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 고양 대리점","rep":"이OO","dist":26,"reg":0,"used":0,"act":0,"conv":0},{"name":"창원대리점","rep":"김OO","dist":26,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기수원대리점","rep":"김OO","dist":25,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 부천대리점","rep":"이OO","dist":22,"reg":0,"used":0,"act":0,"conv":0},{"name":"서울 동대문구, 성북구 대리점","rep":"박OO","dist":21,"reg":0,"used":0,"act":0,"conv":0},{"name":"인천 대리점(서해구/검단구)","rep":"송OO","dist":19,"reg":0,"used":0,"act":0,"conv":0},{"name":"서울 강남구 대리점","rep":"신OO","dist":18,"reg":0,"used":0,"act":0,"conv":0},{"name":"충북 청주 대리점","rep":"정OO","dist":18,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 김포 대리점","rep":"이OO","dist":17,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 파주대리점📞","rep":"최OO","dist":17,"reg":0,"used":0,"act":0,"conv":0},{"name":"구미 대리점","rep":"김OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"해운대 대리점","rep":"윤OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"광주 북구대리점📞","rep":"손OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 광주 대리점","rep":"서OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"전주-덕진구, 완주군 대리점","rep":"임OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"경남 진주 대리점📞","rep":"박OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"부산진구대리점","rep":"신OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"장유 대리점","rep":"화OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경남 거제 대리점","rep":"김OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경주 불국사히어로","rep":"서OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 양주 대리점","rep":"송OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"수영구 대리점","rep":"송OO","dist":12,"reg":0,"used":0,"act":0,"conv":0},{"name":"연제구대리점","rep":"이OO","dist":12,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 대리점(여주시)","rep":"김OO","dist":10,"reg":0,"used":0,"act":0,"conv":0},{"name":"광주 동구대리점📞","rep":"엄OO","dist":10,"reg":0,"used":0,"act":0,"conv":0}]},"review":{"total":8,"done":1,"pending":7,"rate":12.5,"byCategory":{"블로그":{"total":3,"done":1},"인스타":{"total":5,"done":0}},"latest":"2026-05-27","items":[{"handle":"행복한쀼","category":"블로그","region":"광주 광산동","status":"완료","name":"전OO","title":"광주 광산구 수완동 분리수거대행 수거히어로가격 솔직 후기","url":"https://blog.naver.com/1009ssun/224298285163"},{"handle":"해토리님","category":"블로그","region":"부산진구","status":"미완료","name":"김OO","title":"","url":""},{"handle":"불꽃파이리","category":"블로그","region":"경기 의정부 신곡동","status":"미완료","name":"김OO","title":"","url":""},{"handle":"루루민","category":"인스타","region":"경기 파주시","status":"미완료","name":"최OO","title":"","url":""},{"handle":"미미럽","category":"인스타","region":"경기 의정부시 동이로","status":"미완료","name":"최OO","title":"","url":""},{"handle":"하람구름엄마","category":"인스타","region":"서울 노원구 화랑로","status":"미완료","name":"이OO","title":"","url":""},{"handle":"윰레빗","category":"인스타","region":"경기 파주시","status":"미완료","name":"최OO","title":"","url":""},{"handle":"태콤달콤","category":"인스타","region":"경기 파주시","status":"미완료","name":"김OO","title":"","url":""}]},"appdl":{"totals":{"ios":760,"android":1395,"combined":2155},"combinedDaily":{"2026-03-23":18,"2026-03-24":28,"2026-03-25":23,"2026-03-26":8,"2026-03-27":21,"2026-03-28":4,"2026-03-30":11,"2026-04-01":4,"2026-04-02":4,"2026-04-03":3,"2026-04-06":13,"2026-04-07":23,"2026-04-08":9,"2026-04-09":3,"2026-04-10":5,"2026-04-13":53,"2026-04-14":19,"2026-04-15":11,"2026-04-16":4,"2026-04-17":14,"2026-04-18":15,"2026-04-19":2,"2026-04-21":22,"2026-04-22":19,"2026-04-23":40,"2026-04-24":30,"2026-04-25":31,"2026-04-26":68,"2026-04-27":53,"2026-04-28":64,"2026-04-29":46,"2026-04-30":61,"2026-05-01":26,"2026-05-02":30,"2026-05-03":39,"2026-05-04":34,"2026-05-05":44,"2026-05-06":42,"2026-05-07":47,"2026-05-08":54,"2026-05-09":39,"2026-05-10":35,"2026-05-11":53,"2026-05-12":46,"2026-05-13":42,"2026-05-14":33,"2026-05-15":44,"2026-05-16":39,"2026-05-17":39,"2026-05-18":43,"2026-05-19":51,"2026-05-20":60,"2026-05-21":44,"2026-05-22":77,"2026-05-23":40,"2026-05-24":42,"2026-05-25":53,"2026-05-26":38,"2026-05-27":42,"2026-05-28":30,"2026-05-29":63,"2026-05-30":70,"2026-05-31":59,"2026-06-01":2,"2026-03-29":1,"2026-03-31":4,"2026-04-04":2,"2026-04-11":3,"2026-04-12":3,"2026-04-20":13},"iosDaily":{"2026-03-23":4,"2026-03-24":10,"2026-03-25":11,"2026-03-26":3,"2026-03-27":8,"2026-03-28":2,"2026-03-29":1,"2026-03-30":7,"2026-03-31":3,"2026-04-01":1,"2026-04-02":2,"2026-04-04":2,"2026-04-06":5,"2026-04-07":11,"2026-04-08":1,"2026-04-11":1,"2026-04-12":3,"2026-04-13":25,"2026-04-14":3,"2026-04-15":6,"2026-04-17":4,"2026-04-18":4,"2026-04-19":1,"2026-04-20":9,"2026-04-21":5,"2026-04-22":9,"2026-04-23":2,"2026-04-24":5,"2026-04-25":13,"2026-04-26":29,"2026-04-27":16,"2026-04-28":25,"2026-04-29":20,"2026-04-30":11,"2026-05-01":6,"2026-05-02":6,"2026-05-03":10,"2026-05-04":13,"2026-05-05":17,"2026-05-06":11,"2026-05-07":20,"2026-05-08":18,"2026-05-09":19,"2026-05-10":16,"2026-05-11":20,"2026-05-12":11,"2026-05-13":14,"2026-05-14":12,"2026-05-15":16,"2026-05-16":14,"2026-05-17":13,"2026-05-18":13,"2026-05-19":14,"2026-05-20":20,"2026-05-21":18,"2026-05-22":47,"2026-05-23":16,"2026-05-24":10,"2026-05-25":12,"2026-05-26":16,"2026-05-27":20,"2026-05-28":10,"2026-05-29":18,"2026-05-30":25,"2026-05-31":20,"2026-04-03":1,"2026-04-09":1,"2026-04-16":1},"androidDaily":{"2026-03-23":14,"2026-03-24":18,"2026-03-25":12,"2026-03-26":5,"2026-03-27":13,"2026-03-28":2,"2026-03-30":4,"2026-04-01":3,"2026-04-02":2,"2026-04-03":2,"2026-04-06":8,"2026-04-07":12,"2026-04-08":8,"2026-04-09":2,"2026-04-10":5,"2026-04-13":28,"2026-04-14":16,"2026-04-15":5,"2026-04-16":3,"2026-04-17":10,"2026-04-18":11,"2026-04-19":1,"2026-04-21":17,"2026-04-22":10,"2026-04-23":38,"2026-04-24":25,"2026-04-25":18,"2026-04-26":39,"2026-04-27":37,"2026-04-28":39,"2026-04-29":26,"2026-04-30":50,"2026-05-01":20,"2026-05-02":24,"2026-05-03":29,"2026-05-04":21,"2026-05-05":27,"2026-05-06":31,"2026-05-07":27,"2026-05-08":36,"2026-05-09":20,"2026-05-10":19,"2026-05-11":33,"2026-05-12":35,"2026-05-13":28,"2026-05-14":21,"2026-05-15":28,"2026-05-16":25,"2026-05-17":26,"2026-05-18":30,"2026-05-19":37,"2026-05-20":40,"2026-05-21":26,"2026-05-22":30,"2026-05-23":24,"2026-05-24":32,"2026-05-25":41,"2026-05-26":22,"2026-05-27":22,"2026-05-28":20,"2026-05-29":45,"2026-05-30":45,"2026-05-31":39,"2026-06-01":2,"2026-03-31":1,"2026-04-11":2,"2026-04-20":4},"apps":[{"id":"com.monivon.sugohero.user","platform":"android","kind":"user","name":"사용자앱(AOS)","total":1122},{"id":"id6759431069","platform":"ios","kind":"user","name":"사용자앱(iOS)","total":633},{"id":"com.monivon.sugohero.hero","platform":"android","kind":"hero","name":"히어로앱(AOS)","total":273},{"id":"id6759631451","platform":"ios","kind":"hero","name":"히어로앱(iOS)","total":127}],"metrics":{"opDays":71,"minD":"2026-03-23","maxD":"2026-06-01","recent7":{"ios":109,"aos":195,"combined":304},"avg1d":{"ios":10.704225352112676,"aos":19.64788732394366,"combined":30.35211267605634},"avg7d":{"ios":74.92957746478874,"aos":137.53521126760563,"combined":212.46478873239437}}}};
 let GRAN = 'week';
 const won = n => '₩' + Number(n||0).toLocaleString();
 const fmt = n => Number(n||0).toLocaleString();
@@ -213,25 +204,33 @@ function paySumN(g,prev,amt){const d=PWIN[g];return DATA.payments.filter(p=>inWi
 function dlSum(obj,g,prev){const d=PWIN[g];return Object.entries(obj||{}).filter(([dt])=>inWin(dt,prev?d:0,d)).reduce((s,[,v])=>s+v,0);}
 function pdelta(cur,prev){return prev?((cur-prev)/prev*100):null;}
 
-function renderUserSales(g){
+function renderUser(g){
   const hCur=heroNewN(g,false),hPrev=heroNewN(g,true);
-  document.getElementById('k-user').innerHTML=[
+  setHTML('k-user',[
    {label:'신규 회원 (오늘)',val:fmt(T.newUserToday)+'<small>명</small>',extra:'<span class="delta flat">주/월 집계: 권한 제약</span>',sub:'사용자목록 API 권한 필요'},
    {label:'누적 회원',val:fmt(T.userTotal)+'<small>명</small>',extra:'<span class="delta up">인증률 '+(T.userVerified/(T.userVerified+T.userUnverified)*100).toFixed(1)+'%</span>',sub:'인증 '+fmt(T.userVerified)+' / 미인증 '+fmt(T.userUnverified)},
    {label:'신규 히어로 ('+PLBL[g]+')',val:fmt(hCur)+'<small>명</small>',extra:deltaHtml(pdelta(hCur,hPrev))+' <span class="sub2">직전 '+hPrev+'명</span>',sub:'오늘 +'+fmt(T.newHeroToday)+' · 누적 '+fmt(T.heroTotal)},
    {label:'누적 히어로',val:fmt(T.heroTotal)+'<small>명</small>',extra:'<span class="delta up">활동 '+fmt(T.heroActive)+'</span>',sub:'활동 비중 '+(T.heroActive/T.heroTotal*100).toFixed(0)+'%'},
-  ].concat(DATA.appdl?(function(){const ad=DATA.appdl;const dCur=dlSum(ad.combinedDaily,g,false),dPrev=dlSum(ad.combinedDaily,g,true);return [
-   {label:'📲 앱 다운로드 ('+PLBL[g]+')',val:fmt(dCur)+'<small>건</small>',extra:deltaHtml(pdelta(dCur,dPrev))+' <span class="sub2">직전 '+fmt(dPrev)+'건</span>',sub:'iOS+AOS 통합'},
-   {label:'앱 다운로드 누적 (통합)',val:fmt(ad.totals.combined)+'<small>건</small>',extra:'<span class="delta up">iOS '+fmt(ad.totals.ios)+' · AOS '+fmt(ad.totals.android)+'</span>',sub:'AppsFlyer 기준'},
-   {label:'iOS 다운로드 (누적)',val:fmt(ad.totals.ios)+'<small>건</small>',extra:'<span class="delta flat">'+(ad.totals.ios/ad.totals.combined*100).toFixed(1)+'%</span>',sub:'기간 '+fmt(dlSum(ad.iosDaily,g,false))+'건'},
-   {label:'AOS 다운로드 (누적)',val:fmt(ad.totals.android)+'<small>건</small>',extra:'<span class="delta flat">'+(ad.totals.android/ad.totals.combined*100).toFixed(1)+'%</span>',sub:'기간 '+fmt(dlSum(ad.androidDaily,g,false))+'건'},
-  ];})():[]).map(cardHTML).join('');
+  ].map(cardHTML).join(''));
+}
+function renderSales(g){
   const rCur=paySumN(g,false,true),rPrev=paySumN(g,true,true),cCur=paySumN(g,false,false),cPrev=paySumN(g,true,false);
-  document.getElementById('k-sales').innerHTML=[
+  setHTML('k-sales',[
    {label:'결제 건수 ('+PLBL[g]+')',val:fmt(cCur)+'<small>건</small>',extra:deltaHtml(pdelta(cCur,cPrev))+' <span class="sub2">직전 '+cPrev+'건</span>',sub:'누적 '+fmt(payTotal)+'건'},
    {label:'매출 ('+PLBL[g]+')',val:won(rCur),extra:deltaHtml(pdelta(rCur,rPrev))+' <span class="sub2">직전 '+won(rPrev)+'</span>',sub:'기간 결제 합계'},
    {label:'월간 매출 ('+curMonthYm.slice(5)+'월 MTD)',val:won(revMonth),extra:deltaHtml(momRev)+' <span class="sub2">전월비</span>',sub:'전월('+prevYm.slice(5)+'월) '+won(revPrevMonth)},
-  ].map(cardHTML).join('');
+  ].map(cardHTML).join(''));
+}
+function renderApp(){
+  if(!DATA.appdl)return;
+  const ad=DATA.appdl, m=ad.metrics||{avg1d:{ios:0,aos:0,combined:0},avg7d:{ios:0,aos:0,combined:0},recent7:{ios:0,aos:0,combined:0},opDays:1};
+  const r=Math.round, pair=o=>'iOS '+fmt(r(o.ios))+' · AOS '+fmt(r(o.aos));
+  setHTML('k-app',[
+   {label:'1일 평균 다운로드',val:fmt(r(m.avg1d.combined))+'<small>건/일</small>',extra:'<span class="delta flat">'+pair(m.avg1d)+'</span>',sub:'전체기간('+m.opDays+'일) 일평균'},
+   {label:'7일 평균 다운로드',val:fmt(r(m.avg7d.combined))+'<small>건/주</small>',extra:'<span class="delta flat">'+pair(m.avg7d)+'</span>',sub:'주간 환산 평균'},
+   {label:'앱 다운로드 누적',val:fmt(ad.totals.combined)+'<small>건</small>',extra:'<span class="delta up">'+pair({ios:ad.totals.ios,aos:ad.totals.android})+'</span>',sub:'AppsFlyer 누적'},
+   {label:'최근 7일 다운로드',val:fmt(m.recent7.combined)+'<small>건</small>',extra:'<span class="delta up">'+pair(m.recent7)+'</span>',sub:'최근 7일 합계'},
+  ].map(cardHTML).join(''));
 }
 
 // 3. 수거 실적
@@ -268,7 +267,7 @@ function granText(){return GRAN==='day'?'(일자별)':GRAN==='week'?'(주별)':'
 
 function renderTrends(){
   const g=GRAN;
-  try{renderUserSales(g);}catch(e){console.error('cards',e);}
+  try{renderUser(g);renderSales(g);}catch(e){console.error('cards',e);}
   ['g-hero','g-rev','g-pay','g-coll','g-appdl'].forEach(id=>setText(id,granText()));
   // 히어로 신규/누적
   const hs=seriesFromDates(DATA.heroSignups,g);let cum=0;const hcum=hs.map(x=>cum+=x.v);
@@ -327,13 +326,14 @@ function renderStaticCharts(){
 }
 
 // ---- 인터랙션 (먼저 연결 → 차트 실패와 무관하게 항상 동작) ----
-function switchTab(tab){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===tab));}
+function resizeCharts(){Object.values(charts).forEach(c=>{try{c.resize();}catch(e){}});}
+function switchTab(tab){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===tab));setTimeout(resizeCharts,40);}
 const seg=el('granSeg');
 if(seg)seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;GRAN=b.dataset.g;document.querySelectorAll('#granSeg button').forEach(x=>x.classList.toggle('active',x===b));try{renderTrends();}catch(err){console.error(err);}});
 document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
-document.querySelectorAll('.jump').forEach(b=>b.addEventListener('click',()=>{switchTab('t2');setTimeout(()=>{const t=el(b.dataset.go);if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},60);}));
 
 // ---- 부트스트랩 (각 단계 격리) ----
+try{renderApp();}catch(e){console.error('app cards',e);}
 try{renderTables();}catch(e){console.error('tables',e);}
 try{renderStaticCharts();}catch(e){console.error('static charts',e);}
 try{renderTrends();}catch(e){console.error('trends',e);}
