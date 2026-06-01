@@ -82,7 +82,7 @@
 </style></head>
 <body><div class="wrap">
   <header>
-    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 02:08 KST</span></h1>
+    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 02:24 KST</span></h1>
     <div class="gran">
       <span class="lbl">📅 기간 단위</span>
       <div class="seg" id="granSeg">
@@ -262,7 +262,7 @@ document.getElementById('k-coupon').innerHTML=[
 // 5. 리뷰
 if(DATA.review){const rv=DATA.review;
  document.getElementById('k-review').innerHTML=[
-  {label:'콘텐츠 완료율',val:rv.rate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(rv.done?'up':'flat')+'">완료 '+rv.done+'/'+rv.total+'</span>',sub:'미완료 '+rv.pending+'건'},
+  {label:'레뷰 체험단 진행율',val:rv.rate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(rv.done?'up':'flat')+'">완료 '+rv.done+'/'+rv.total+'</span>',sub:'미완료 '+rv.pending+'건'},
   {label:'채널별 진행',val:Object.keys(rv.byCategory).map(k=>k+' '+rv.byCategory[k].done+'/'+rv.byCategory[k].total).join('<br>'),sub:'최근 업로드 '+(rv.latest||'-')},
  ].map(cardHTML).join('');}
 
@@ -288,7 +288,7 @@ function renderOverview(g){
    {label:'수거 실적 (누적)',val:fmt(rg.totalCompleted)+'<small>건</small>',extra:'<span class="delta up">'+rg.totalWeight.toFixed(1)+'kg</span>',sub:'미수거율 '+rg.uncollRate.toFixed(1)+'%'},
    {label:'쿠폰 활성화율',val:cp.actRate.toFixed(1)+'<small>%</small>',extra:'<span class="delta flat">등록 '+cp.reg+'/배포 '+cp.dist+'</span>',sub:'사용전환 '+cp.useConv.toFixed(1)+'%'}
   );
-  if(rv)cards.push({label:'리뷰 콘텐츠 완료율',val:rv.rate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(rv.done?'up':'flat')+'">완료 '+rv.done+'/'+rv.total+'</span>',sub:'미완료 '+rv.pending+'건'});
+  if(rv)cards.push({label:'레뷰 체험단 진행율',val:rv.rate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(rv.done?'up':'flat')+'">완료 '+rv.done+'/'+rv.total+'</span>',sub:'미완료 '+rv.pending+'건'});
   setHTML('k-overview',cards.map(cardHTML).join(''));
   setText('g-ovrev',granText());
   const rs=seriesSum(DATA.payments,g,'amount');
