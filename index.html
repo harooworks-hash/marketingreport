@@ -43,6 +43,9 @@
   .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
   h2.sec{font-size:18px;margin-bottom:16px;color:var(--txt)}
   h3.subcat{font-size:15px;margin:8px 0 12px;padding-left:9px;border-left:3px solid var(--accent);color:var(--txt);font-weight:700}
+  .ovwow{font-size:11.5px;color:var(--sub);margin-top:9px;padding-top:8px;border-top:1px dashed var(--line)}
+  .detail-btn{margin-top:10px;width:100%;font-size:12px;color:var(--accent);background:rgba(79,124,255,.1);border:1px solid rgba(79,124,255,.3);border-radius:8px;padding:7px 10px;cursor:pointer;font-weight:600;transition:.15s}
+  .detail-btn:hover{background:rgba(79,124,255,.22)}
   .panel{display:none}.panel.active{display:block;animation:fade .25s}
   @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
   .cat{margin-bottom:26px}
@@ -83,7 +86,7 @@
 </style></head>
 <body><div class="wrap">
   <header>
-    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 02:33 KST</span></h1>
+    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 03:25 KST</span></h1>
     <div class="gran">
       <span class="lbl">📅 기간 단위</span>
       <div class="seg" id="granSeg">
@@ -295,24 +298,28 @@ function setHTML(id,h){const e=el(id);if(e)e.innerHTML=h;}
 function mk(id,cfg){if(!HAS_CHART)return;const cv=el(id);if(!cv)return;try{destroy(id);charts[id]=new Chart(cv,cfg);}catch(e){console.error('chart',id,e);}}
 function granText(){return GRAN==='day'?'(일자별)':GRAN==='week'?'(주별)':'(월별)';}
 
+function ovCard(k){return '<div class="card"><div class="label">'+k.label+'</div><div class="val">'+k.val+'</div>'+(k.extra||'')+(k.sub?'<div class="sub2">'+k.sub+'</div>':'')+'<div class="ovwow">📈 주간 추세 '+(k.wow||'<span class="delta flat">—</span>')+'</div>'+(k.goto?'<button class="detail-btn" data-go="'+k.goto+'">자세히 보기 →</button>':'')+'</div>';}
 function renderOverview(g){
   const ak=DATA.appByKind, rv=DATA.review, rg=DATA.region, cp=DATA.coupon;
   const pair=o=>'iOS '+fmt(o.ios)+' · AOS '+fmt(o.aos);
+  const wow=(cur,prev)=>deltaHtml(pdelta(cur,prev));
+  const collW=p=>DATA.collectionDaily.filter(c=>inWin(c.date,p?7:0,7)).reduce((s,c)=>s+(c.completed||0),0);
+  const na='<span class="delta flat">— (주간 집계 제약)</span>';
   const cards=[
-   {label:'누적 회원',val:fmt(T.userTotal)+'<small>명</small>',extra:'<span class="delta up">인증률 '+(T.userVerified/(T.userVerified+T.userUnverified)*100).toFixed(1)+'%</span>',sub:'오늘 신규 +'+fmt(T.newUserToday)},
-   {label:'누적 히어로',val:fmt(T.heroTotal)+'<small>명</small>',extra:'<span class="delta up">활동 '+fmt(T.heroActive)+'</span>',sub:'활동 비중 '+(T.heroActive/T.heroTotal*100).toFixed(0)+'%'},
+   {label:'누적 회원',val:fmt(T.userTotal)+'<small>명</small>',extra:'<span class="delta up">인증률 '+(T.userVerified/(T.userVerified+T.userUnverified)*100).toFixed(1)+'%</span>',sub:'오늘 신규 +'+fmt(T.newUserToday),wow:na,goto:'c1'},
+   {label:'누적 히어로',val:fmt(T.heroTotal)+'<small>명</small>',extra:'<span class="delta up">활동 '+fmt(T.heroActive)+'</span>',sub:'활동 비중 '+(T.heroActive/T.heroTotal*100).toFixed(0)+'%',wow:wow(heroNewN('week',false),heroNewN('week',true)),goto:'c1'},
   ];
   if(ak)cards.push(
-   {label:'📱 사용자앱 다운로드',val:fmt(ak.user.totals.total)+'<small>건</small>',extra:'<span class="delta up">'+pair(ak.user.totals)+'</span>',sub:'최근 7일 +'+fmt(ak.user.recent7.total)},
-   {label:'🦸 히어로앱 다운로드',val:fmt(ak.hero.totals.total)+'<small>건</small>',extra:'<span class="delta up">'+pair(ak.hero.totals)+'</span>',sub:'최근 7일 +'+fmt(ak.hero.recent7.total)}
+   {label:'📱 사용자앱 다운로드',val:fmt(ak.user.totals.total)+'<small>건</small>',extra:'<span class="delta up">'+pair(ak.user.totals)+'</span>',sub:'최근 7일 +'+fmt(ak.user.recent7.total),wow:wow(dlSum(ak.user.combinedDaily,'week',false),dlSum(ak.user.combinedDaily,'week',true)),goto:'c2'},
+   {label:'🦸 히어로앱 다운로드',val:fmt(ak.hero.totals.total)+'<small>건</small>',extra:'<span class="delta up">'+pair(ak.hero.totals)+'</span>',sub:'최근 7일 +'+fmt(ak.hero.recent7.total),wow:wow(dlSum(ak.hero.combinedDaily,'week',false),dlSum(ak.hero.combinedDaily,'week',true)),goto:'c2'}
   );
   cards.push(
-   {label:'월간 매출 ('+curMonthYm.slice(5)+'월)',val:won(revMonth),extra:deltaHtml(momRev)+' <span class="sub2">전월비</span>',sub:'누적 결제 '+fmt(payTotal)+'건'},
-   {label:'수거 실적 (누적)',val:fmt(rg.totalCompleted)+'<small>건</small>',extra:'<span class="delta up">'+rg.totalWeight.toFixed(1)+'kg</span>',sub:'미수거율 '+rg.uncollRate.toFixed(1)+'%'},
-   {label:'쿠폰 활성화율',val:cp.actRate.toFixed(1)+'<small>%</small>',extra:'<span class="delta flat">등록 '+cp.reg+'/배포 '+cp.dist+'</span>',sub:'사용전환 '+cp.useConv.toFixed(1)+'%'}
+   {label:'월간 매출 ('+curMonthYm.slice(5)+'월)',val:won(revMonth),extra:deltaHtml(momRev)+' <span class="sub2">전월비</span>',sub:'누적 결제 '+fmt(payTotal)+'건',wow:wow(paySumN('week',false,true),paySumN('week',true,true)),goto:'c3'},
+   {label:'수거 실적 (누적)',val:fmt(rg.totalCompleted)+'<small>건</small>',extra:'<span class="delta up">'+rg.totalWeight.toFixed(1)+'kg</span>',sub:'미수거율 '+rg.uncollRate.toFixed(1)+'%',wow:wow(collW(false),collW(true)),goto:'c4'},
+   {label:'쿠폰 활성화율',val:cp.actRate.toFixed(1)+'<small>%</small>',extra:'<span class="delta flat">등록 '+cp.reg+'/배포 '+cp.dist+'</span>',sub:'사용전환 '+cp.useConv.toFixed(1)+'%',wow:na,goto:'c5'}
   );
-  if(rv)cards.push({label:'레뷰 체험단 진행율',val:rv.rate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(rv.done?'up':'flat')+'">완료 '+rv.done+'/'+rv.total+'</span>',sub:'미완료 '+rv.pending+'건'});
-  setHTML('k-overview',cards.map(cardHTML).join(''));
+  if(rv)cards.push({label:'레뷰 체험단 진행율',val:rv.rate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(rv.done?'up':'flat')+'">완료 '+rv.done+'/'+rv.total+'</span>',sub:'미완료 '+rv.pending+'건',wow:na,goto:'c6'});
+  setHTML('k-overview',cards.map(ovCard).join(''));
   setText('g-ovrev',granText());
   const rs=seriesSum(DATA.payments,g,'amount');
   mk('ovRev',{type:'bar',data:{labels:rs.map(x=>blabel(x.k,g)),datasets:[{label:'매출',data:rs.map(x=>x.v),backgroundColor:'#22c55e',borderRadius:4}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₩'+(v/1000)+'k'}}}}});
@@ -384,6 +391,9 @@ function switchTab(tab){document.querySelectorAll('.tab').forEach(b=>b.classList
 const seg=el('granSeg');
 if(seg)seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;GRAN=b.dataset.g;document.querySelectorAll('#granSeg button').forEach(x=>x.classList.toggle('active',x===b));try{renderTrends();}catch(err){console.error(err);}});
 document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>switchTab(btn.dataset.tab)));
+// 통합 대시보드 카드의 '자세히 보기' 버튼 → 해당 카테고리 탭으로 이동 (위임)
+const ov=el('k-overview');
+if(ov)ov.addEventListener('click',e=>{const b=e.target.closest('.detail-btn');if(b&&b.dataset.go){switchTab(b.dataset.go);window.scrollTo({top:0,behavior:'smooth'});}});
 
 // ---- 부트스트랩 (각 단계 격리) ----
 try{renderTables();}catch(e){console.error('tables',e);}
