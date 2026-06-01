@@ -59,7 +59,7 @@
 </style></head>
 <body><div class="wrap">
   <header>
-    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 00:32 KST</span></h1>
+    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 00:39 KST</span></h1>
     <div class="gran">
       <span class="lbl">📅 기간 단위</span>
       <div class="seg" id="granSeg">
@@ -180,20 +180,28 @@ function deltaHtml(v){if(v===null||v===undefined)return '<span class="delta flat
 const momRev=revPrevMonth?((revMonth-revPrevMonth)/revPrevMonth*100):null;
 function cardHTML(k){return '<div class="card"><div class="label">'+k.label+'</div><div class="val">'+k.val+'</div>'+(k.extra||'')+(k.sub?'<div class="sub2">'+k.sub+'</div>':'')+'</div>';}
 
-// 1. 이용자&히어로
-document.getElementById('k-user').innerHTML=[
- {label:'신규 회원 (오늘)',val:fmt(T.newUserToday)+'<small>명</small>',extra:'<span class="delta flat">주/월 집계: 권한 제약</span>',sub:'사용자목록 API 권한 필요'},
- {label:'누적 회원',val:fmt(T.userTotal)+'<small>명</small>',extra:'<span class="delta up">인증률 '+(T.userVerified/(T.userVerified+T.userUnverified)*100).toFixed(1)+'%</span>',sub:'인증 '+fmt(T.userVerified)+' / 미인증 '+fmt(T.userUnverified)},
- {label:'신규 히어로 (최근 7일)',val:fmt(heroNew7)+'<small>명</small>',extra:'<span class="delta up">오늘 +'+fmt(T.newHeroToday)+'</span>',sub:'기간 추이는 상세 참고'},
- {label:'누적 히어로',val:fmt(T.heroTotal)+'<small>명</small>',extra:'<span class="delta up">활동 '+fmt(T.heroActive)+'</span>',sub:'활동 히어로 비중 '+(T.heroActive/T.heroTotal*100).toFixed(0)+'%'},
-].map(cardHTML).join('');
+// 기간 단위(일/주/월) 반응형 KPI : 롤링 윈도우 + 직전 기간 대비
+const PWIN={day:1,week:7,month:30}, PLBL={day:'오늘',week:'최근 7일',month:'최근 30일'};
+function inWin(date,off,days){const dd=Math.floor((new Date(DATA.asOf)-new Date(date))/86400000);return dd>=off&&dd<off+days;}
+function heroNewN(g,prev){const d=PWIN[g];return DATA.heroSignups.filter(x=>inWin(x,prev?d:0,d)).length;}
+function paySumN(g,prev,amt){const d=PWIN[g];return DATA.payments.filter(p=>inWin(p.date,prev?d:0,d)).reduce((s,p)=>s+(amt?p.amount:1),0);}
+function pdelta(cur,prev){return prev?((cur-prev)/prev*100):null;}
 
-// 2. 매출현황
-document.getElementById('k-sales').innerHTML=[
- {label:'총 결제 건수',val:fmt(payTotal)+'<small>건</small>',extra:'<span class="delta up">PAID 기준</span>',sub:'결제 추이는 상세 참고'},
- {label:'주간 매출 (최근 7일)',val:won(rev7),sub:'최근 7일 결제 합계'},
- {label:'월간 매출 ('+curMonthYm.slice(5)+'월 MTD)',val:won(revMonth),extra:deltaHtml(momRev)+' <span class="sub2">전월비</span>',sub:'전월('+prevYm.slice(5)+'월) '+won(revPrevMonth)},
-].map(cardHTML).join('');
+function renderUserSales(g){
+  const hCur=heroNewN(g,false),hPrev=heroNewN(g,true);
+  document.getElementById('k-user').innerHTML=[
+   {label:'신규 회원 (오늘)',val:fmt(T.newUserToday)+'<small>명</small>',extra:'<span class="delta flat">주/월 집계: 권한 제약</span>',sub:'사용자목록 API 권한 필요'},
+   {label:'누적 회원',val:fmt(T.userTotal)+'<small>명</small>',extra:'<span class="delta up">인증률 '+(T.userVerified/(T.userVerified+T.userUnverified)*100).toFixed(1)+'%</span>',sub:'인증 '+fmt(T.userVerified)+' / 미인증 '+fmt(T.userUnverified)},
+   {label:'신규 히어로 ('+PLBL[g]+')',val:fmt(hCur)+'<small>명</small>',extra:deltaHtml(pdelta(hCur,hPrev))+' <span class="sub2">직전 '+hPrev+'명</span>',sub:'오늘 +'+fmt(T.newHeroToday)+' · 누적 '+fmt(T.heroTotal)},
+   {label:'누적 히어로',val:fmt(T.heroTotal)+'<small>명</small>',extra:'<span class="delta up">활동 '+fmt(T.heroActive)+'</span>',sub:'활동 비중 '+(T.heroActive/T.heroTotal*100).toFixed(0)+'%'},
+  ].map(cardHTML).join('');
+  const rCur=paySumN(g,false,true),rPrev=paySumN(g,true,true),cCur=paySumN(g,false,false),cPrev=paySumN(g,true,false);
+  document.getElementById('k-sales').innerHTML=[
+   {label:'결제 건수 ('+PLBL[g]+')',val:fmt(cCur)+'<small>건</small>',extra:deltaHtml(pdelta(cCur,cPrev))+' <span class="sub2">직전 '+cPrev+'건</span>',sub:'누적 '+fmt(payTotal)+'건'},
+   {label:'매출 ('+PLBL[g]+')',val:won(rCur),extra:deltaHtml(pdelta(rCur,rPrev))+' <span class="sub2">직전 '+won(rPrev)+'</span>',sub:'기간 결제 합계'},
+   {label:'월간 매출 ('+curMonthYm.slice(5)+'월 MTD)',val:won(revMonth),extra:deltaHtml(momRev)+' <span class="sub2">전월비</span>',sub:'전월('+prevYm.slice(5)+'월) '+won(revPrevMonth)},
+  ].map(cardHTML).join('');
+}
 
 // 3. 수거 실적
 const top=DATA.region.top.slice(0,3);
@@ -224,6 +232,7 @@ function granText(){return GRAN==='day'?'(일자별)':GRAN==='week'?'(주별)':'
 
 function renderTrends(){
   const g=GRAN;
+  renderUserSales(g);
   ['g-hero','g-rev','g-pay','g-coll'].forEach(id=>document.getElementById(id).textContent=granText());
   // 히어로 신규/누적
   const hs=seriesFromDates(DATA.heroSignups,g);let cum=0;const hcum=hs.map(x=>cum+=x.v);
