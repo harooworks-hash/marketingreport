@@ -1,222 +1,283 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>수고히어로 주간 마케팅 보고서</title>
+<html lang="ko"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>수고히어로 마케팅 대시보드</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-  :root{--bg:#0f1117;--card:#1a1d27;--card2:#222633;--line:#2c3142;--txt:#e6e8ee;--sub:#9aa0b0;--accent:#4f7cff;--up:#22c55e;--down:#ef4444;--amber:#f7b955;}
+  :root{--bg:#0f1117;--card:#1a1d27;--card2:#222633;--line:#2c3142;--txt:#e6e8ee;--sub:#9aa0b0;--accent:#4f7cff;--up:#22c55e;--down:#ef4444;--amber:#f7b955;--purple:#7c5cff}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:linear-gradient(180deg,#0c0e14,#11141d);color:var(--txt);font-family:'Segoe UI','Malgun Gothic',sans-serif;padding:28px;line-height:1.5}
-  .wrap{max-width:1240px;margin:0 auto}
-  header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:24px}
-  h1{font-size:26px;font-weight:700}
-  h1 .sub{display:block;font-size:13px;color:var(--sub);font-weight:400;margin-top:6px}
-  .badge{background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:13px;color:var(--sub)}
-  h2{font-size:17px;margin:34px 0 14px;padding-left:10px;border-left:3px solid var(--accent)}
-  .grid{display:grid;gap:14px}
-  .kpis{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
-  .card .label{font-size:13px;color:var(--sub);margin-bottom:8px}
-  .card .val{font-size:28px;font-weight:700;letter-spacing:-.5px}
-  .card .val small{font-size:14px;color:var(--sub);font-weight:500}
-  .delta{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;margin-top:10px;padding:3px 9px;border-radius:8px}
-  .delta.up{color:var(--up);background:rgba(34,197,94,.12)}
-  .delta.down{color:var(--down);background:rgba(239,68,68,.12)}
-  .delta.flat{color:var(--sub);background:rgba(154,160,176,.12)}
-  .sub2{font-size:12px;color:var(--sub);margin-top:8px}
+  body{background:linear-gradient(180deg,#0c0e14,#11141d);color:var(--txt);font-family:'Segoe UI','Malgun Gothic',sans-serif;padding:24px;line-height:1.5}
+  .wrap{max-width:1280px;margin:0 auto}
+  header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px}
+  h1{font-size:24px;font-weight:700}
+  h1 .sub{display:block;font-size:12px;color:var(--sub);font-weight:400;margin-top:5px}
+  .gran{display:flex;align-items:center;gap:10px}
+  .gran .lbl{font-size:12px;color:var(--sub)}
+  .seg{display:inline-flex;background:var(--card2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .seg button{padding:8px 16px;background:none;border:none;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer}
+  .seg button.active{background:var(--accent);color:#fff}
+  .tabs{display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+  .tab{padding:11px 22px;cursor:pointer;font-size:15px;font-weight:600;color:var(--sub);background:none;border:none;border-bottom:2px solid transparent}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .panel{display:none}.panel.active{display:block;animation:fade .25s}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+  .cat{margin-bottom:26px}
+  .cat-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .cat-head h2{font-size:16px;display:flex;align-items:center;gap:9px}
+  .cat-head h2 .ico{width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;background:var(--card2)}
+  .jump{font-size:12px;color:var(--accent);background:rgba(79,124,255,.12);border:1px solid rgba(79,124,255,.3);border-radius:8px;padding:6px 13px;cursor:pointer;font-weight:600}
+  .jump:hover{background:rgba(79,124,255,.22)}
+  .grid{display:grid;gap:13px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px 18px}
+  .card .label{font-size:12.5px;color:var(--sub);margin-bottom:7px}
+  .card .val{font-size:26px;font-weight:700;letter-spacing:-.5px}
+  .card .val small{font-size:13px;color:var(--sub);font-weight:500}
+  .delta{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600;margin-top:9px;padding:3px 9px;border-radius:8px}
+  .delta.up{color:var(--up);background:rgba(34,197,94,.12)}.delta.down{color:var(--down);background:rgba(239,68,68,.12)}.delta.flat{color:var(--sub);background:rgba(154,160,176,.12)}
+  .sub2{font-size:11.5px;color:var(--sub);margin-top:7px}
   .charts{grid-template-columns:1fr 1fr}
-  .chart-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
-  .chart-card h3{font-size:14px;color:var(--txt);margin-bottom:14px;font-weight:600}
-  .chart-box{position:relative;height:280px}
-  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
-  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  .chart-card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px}
+  .chart-card h3{font-size:13.5px;margin-bottom:12px;font-weight:600}
+  .chart-box{position:relative;height:270px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line)}
   th:first-child,td:first-child{text-align:left}
   th{color:var(--amber);font-weight:600;font-size:12px;position:sticky;top:0;background:var(--card)}
   tbody tr:hover{background:var(--card2)}
-  .bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden;display:inline-block;width:80px;vertical-align:middle;margin-right:8px}
-  .bar > i{display:block;height:100%;background:linear-gradient(90deg,#4f7cff,#7c5cff)}
-  .pill{font-size:11px;padding:2px 8px;border-radius:6px}
-  .pill.on{background:rgba(34,197,94,.15);color:var(--up)} .pill.off{background:rgba(154,160,176,.12);color:var(--sub)}
+  .bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden;display:inline-block;width:70px;vertical-align:middle;margin-right:7px}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,#4f7cff,#7c5cff)}
+  .pill{font-size:11px;padding:2px 8px;border-radius:6px}.pill.on{background:rgba(34,197,94,.15);color:var(--up)}.pill.off{background:rgba(154,160,176,.12);color:var(--sub)}
   .scroll{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:12px}
-  .two{grid-template-columns:1fr 1fr;align-items:start}
-  footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--sub)}
-  .tabs{display:flex;gap:8px;margin-bottom:8px;border-bottom:1px solid var(--line)}
-  .tab{padding:11px 22px;cursor:pointer;font-size:15px;font-weight:600;color:var(--sub);border:none;background:none;border-bottom:2px solid transparent;transition:.15s}
-  .tab:hover{color:var(--txt)}
-  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-  .panel{display:none;animation:fade .25s ease}
-  .panel.active{display:block}
-  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-  @media(max-width:880px){.charts,.two{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<div class="wrap">
+  .detail-sec{margin-bottom:30px;scroll-margin-top:16px}
+  .detail-sec>h2{font-size:17px;margin-bottom:14px;padding-left:10px;border-left:3px solid var(--accent)}
+  .top3{display:flex;gap:10px;margin-top:4px}
+  .top3 .t{flex:1;background:var(--card2);border-radius:9px;padding:9px;text-align:center}
+  .top3 .t .r{font-size:11px;color:var(--amber)}.top3 .t .n{font-size:15px;font-weight:700}.top3 .t .v{font-size:11px;color:var(--sub)}
+  footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--sub)}
+  @media(max-width:880px){.charts{grid-template-columns:1fr}}
+</style></head>
+<body><div class="wrap">
   <header>
-    <h1>수고히어로 주간 마케팅 보고서<span class="sub">데이터: Sugohero Admin API (라이브) + Notion 영업문서 · 쿠폰 매칭</span></h1>
-    <div style="text-align:right">
-      <div class="badge">📅 이번주 2026-05-25~2026-05-31</div>
-      <div class="sub2">기준시각 2026-06-01 00:12 (KST)</div>
+    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 00:32 KST</span></h1>
+    <div class="gran">
+      <span class="lbl">📅 기간 단위</span>
+      <div class="seg" id="granSeg">
+        <button data-g="day">일자별</button>
+        <button data-g="week" class="active">주별</button>
+        <button data-g="month">월별</button>
+      </div>
     </div>
   </header>
 
   <div class="tabs">
-    <button class="tab active" data-tab="t1">📊 핵심 요약</button>
+    <button class="tab active" data-tab="t1">📊 핵심 지표</button>
     <button class="tab" data-tab="t2">📋 상세 데이터</button>
   </div>
 
-  <!-- 탭1: 핵심 요약 -->
+  <!-- ===== 탭1: 핵심지표 (카테고리별) ===== -->
   <section class="panel active" id="t1">
-    <h2>핵심 지표 (증감률)</h2>
-    <div class="grid kpis" id="kpis"></div>
 
-    <h2>성장 추이</h2>
-    <div class="grid charts">
-      <div class="chart-card"><h3>히어로 주간 신규 / 누적</h3><div class="chart-box"><canvas id="heroChart"></canvas></div></div>
-      <div class="chart-card"><h3>주간 매출 추이</h3><div class="chart-box"><canvas id="revChart"></canvas></div></div>
-    </div>
-    <div class="grid charts" style="margin-top:14px">
-      <div class="chart-card"><h3>월별 매출 (MoM)</h3><div class="chart-box"><canvas id="monthChart"></canvas></div></div>
-      <div class="chart-card"><h3>쿠폰 사용자 사용률 (퍼널)</h3><div class="chart-box"><canvas id="funnelChart"></canvas></div></div>
+    <div class="cat">
+      <div class="cat-head"><h2><span class="ico">👥</span>1. 이용자 & 히어로</h2><button class="jump" data-go="d-user">상세 보기 →</button></div>
+      <div class="grid kpis" id="k-user"></div>
     </div>
 
-    <h2>대리점 쿠폰 미션 활성화율 TOP</h2>
-    <div class="chart-card"><h3>활성화율(등록/배포) vs 사용전환율(사용/등록)</h3><div class="chart-box" style="height:360px"><canvas id="dealerChart"></canvas></div></div>
+    <div class="cat">
+      <div class="cat-head"><h2><span class="ico">💳</span>2. 매출 현황</h2><button class="jump" data-go="d-sales">상세 보기 →</button></div>
+      <div class="grid kpis" id="k-sales"></div>
+    </div>
 
-    <h2>리뷰 체험단 콘텐츠 진행 (REV-SUGOHERO)</h2>
-    <div class="grid charts">
-      <div class="chart-card"><h3>콘텐츠 업로드 완료 현황</h3><div class="chart-box"><canvas id="reviewDonut"></canvas></div></div>
-      <div class="chart-card"><h3>채널별 진행 (블로그·인스타)</h3><div class="chart-box"><canvas id="reviewBar"></canvas></div></div>
+    <div class="cat">
+      <div class="cat-head"><h2><span class="ico">♻️</span>3. 히어로 수거 실적 현황</h2><button class="jump" data-go="d-coll">상세 보기 →</button></div>
+      <div class="grid kpis" id="k-coll"></div>
+    </div>
+
+    <div class="cat">
+      <div class="cat-head"><h2><span class="ico">🎫</span>4. 대리점 미션 현황</h2><button class="jump" data-go="d-coupon">상세 보기 →</button></div>
+      <div class="grid kpis" id="k-coupon"></div>
+    </div>
+
+    <div class="cat">
+      <div class="cat-head"><h2><span class="ico">📝</span>5. 레뷰 체험단 진행 현황</h2><button class="jump" data-go="d-review">상세 보기 →</button></div>
+      <div class="grid kpis" id="k-review"></div>
     </div>
   </section>
 
-  <!-- 탭2: 상세 데이터 -->
+  <!-- ===== 탭2: 상세 데이터 (카테고리별 섹션) ===== -->
   <section class="panel" id="t2">
-    <h2>대리점별 쿠폰 미션 · 사용자 사용률 (전체 39곳)</h2>
-    <div class="scroll"><table id="dealerTable"></table></div>
-
-    <h2>수거 미션 이행 (활동 대리점 9곳 · 98.0kg)</h2>
-    <div class="scroll" style="max-height:320px"><table id="collTable"></table></div>
-
-    <div class="grid two" style="margin-top:24px">
-      <div><h2 style="margin-top:0">월별 매출 추이</h2><div class="scroll"><table id="monthTable"></table></div></div>
-      <div><h2 style="margin-top:0">주간 매출 추이</h2><div class="scroll"><table id="weekTable"></table></div></div>
+    <div class="detail-sec" id="d-user">
+      <h2>1. 이용자 & 히어로 상세</h2>
+      <div class="grid charts">
+        <div class="chart-card"><h3>히어로 신규/누적 추이 <span class="sub2" id="g-hero"></span></h3><div class="chart-box"><canvas id="heroTrend"></canvas></div></div>
+        <div class="chart-card"><h3>회원 구성 (인증/미인증)</h3><div class="chart-box"><canvas id="memberDonut"></canvas></div></div>
+      </div>
+      <div class="scroll" style="margin-top:13px;max-height:340px"><table id="heroTable"></table></div>
     </div>
 
-    <h2>히어로 주간 신규 / 누적</h2>
-    <div class="scroll" style="max-height:360px"><table id="heroTable"></table></div>
+    <div class="detail-sec" id="d-sales">
+      <h2>2. 매출 현황 상세</h2>
+      <div class="grid charts">
+        <div class="chart-card"><h3>매출 추이 <span class="sub2" id="g-rev"></span></h3><div class="chart-box"><canvas id="revTrend"></canvas></div></div>
+        <div class="chart-card"><h3>결제 건수 추이 <span class="sub2" id="g-pay"></span></h3><div class="chart-box"><canvas id="payTrend"></canvas></div></div>
+      </div>
+      <div class="scroll" style="margin-top:13px;max-height:340px"><table id="salesTable"></table></div>
+    </div>
 
-    <h2>리뷰 체험단 콘텐츠 진행 상황 (8명 · 완료 1 / 미완료 7)</h2>
-    <div class="scroll"><table id="reviewTable"></table></div>
+    <div class="detail-sec" id="d-coll">
+      <h2>3. 히어로 수거 실적 상세</h2>
+      <div class="grid charts">
+        <div class="chart-card"><h3>수거 추이 <span class="sub2" id="g-coll"></span></h3><div class="chart-box"><canvas id="collTrend"></canvas></div></div>
+        <div class="chart-card"><h3>지역별 수거 TOP</h3><div class="chart-box"><canvas id="regionChart"></canvas></div></div>
+      </div>
+      <div class="scroll" style="margin-top:13px;max-height:340px"><table id="agencyTable"></table></div>
+    </div>
+
+    <div class="detail-sec" id="d-coupon">
+      <h2>4. 대리점 미션 상세 (쿠폰 39곳)</h2>
+      <div class="scroll"><table id="dealerTable"></table></div>
+    </div>
+
+    <div class="detail-sec" id="d-review">
+      <h2>5. 레뷰 체험단 진행 상세 (8명 · 완료 1/미완료 7)</h2>
+      <div class="grid charts">
+        <div class="chart-card"><h3>업로드 완료 현황</h3><div class="chart-box"><canvas id="reviewDonut"></canvas></div></div>
+        <div class="chart-card"><h3>채널별 진행</h3><div class="chart-box"><canvas id="reviewBar"></canvas></div></div>
+      </div>
+      <div class="scroll" style="margin-top:13px"><table id="reviewTable"></table></div>
+    </div>
   </section>
 
-  <footer>※ 회원 주단위 신규집계는 현재 계정(SUPPORT) 권한 제약으로 미포함 — 금일 신규회원 31명만 표기. 🔒 공개용: 개인정보(대표자명) 마스킹 적용.</footer>
+  <footer>※ 회원 주/월 신규 집계는 사용자목록 API 권한 제약으로 '오늘'만 표기(누적은 라이브). 수거 일별은 최근 7일 제공. 🔒 공개용: 개인정보(대표자·리뷰어명) 마스킹. 기간 단위(일/주/월)는 상세 추이 차트에 적용됩니다.</footer>
 </div>
 
 <script>
-const DATA = {"generatedAt":"2026-06-01 00:12","weekLabel":"2026-05-25~2026-05-31","members":{"total":1481,"today":31,"verified":601,"unverified":880,"verifyRate":40.580688723835245},"heroes":{"total":133,"active":69,"lastNew":8,"prevNew":45,"wow":-82.22222222222221,"weekly":[{"week":"2026-03-23~2026-03-29","new":5,"cumulative":5},{"week":"2026-03-30~2026-04-05","new":1,"cumulative":6},{"week":"2026-04-06~2026-04-12","new":5,"cumulative":11},{"week":"2026-04-13~2026-04-19","new":5,"cumulative":16},{"week":"2026-04-20~2026-04-26","new":12,"cumulative":28},{"week":"2026-04-27~2026-05-03","new":18,"cumulative":46},{"week":"2026-05-04~2026-05-10","new":13,"cumulative":59},{"week":"2026-05-11~2026-05-17","new":21,"cumulative":80},{"week":"2026-05-18~2026-05-24","new":45,"cumulative":125},{"week":"2026-05-25~2026-05-31","new":8,"cumulative":133}]},"revenue":{"month":164480,"prevMonth":92220,"mom":78.35610496638473,"year":263200,"today":13940,"refund":59900,"paid":92,"todayCount":6,"failed":0,"unpaid":1,"monthly":[{"year":2026,"month":3,"total_revenue":6500,"actual_revenue":6500,"uncollected_amount":0,"refund_amount":6500},{"year":2026,"month":4,"total_revenue":92220,"actual_revenue":91100,"uncollected_amount":1120,"refund_amount":6500},{"year":2026,"month":5,"total_revenue":164480,"actual_revenue":164480,"uncollected_amount":0,"refund_amount":59900}],"weekly":[{"week_start":"2026-01-26","total_revenue":0,"actual_revenue":0},{"week_start":"2026-02-02","total_revenue":0,"actual_revenue":0},{"week_start":"2026-02-09","total_revenue":0,"actual_revenue":0},{"week_start":"2026-02-16","total_revenue":0,"actual_revenue":0},{"week_start":"2026-02-23","total_revenue":0,"actual_revenue":0},{"week_start":"2026-03-02","total_revenue":0,"actual_revenue":0},{"week_start":"2026-03-09","total_revenue":0,"actual_revenue":0},{"week_start":"2026-03-16","total_revenue":0,"actual_revenue":0},{"week_start":"2026-03-23","total_revenue":6500,"actual_revenue":6500},{"week_start":"2026-03-30","total_revenue":9000,"actual_revenue":9000},{"week_start":"2026-04-06","total_revenue":38060,"actual_revenue":38060},{"week_start":"2026-04-13","total_revenue":1120,"actual_revenue":0},{"week_start":"2026-04-20","total_revenue":42540,"actual_revenue":42540},{"week_start":"2026-04-27","total_revenue":25000,"actual_revenue":25000},{"week_start":"2026-05-04","total_revenue":30600,"actual_revenue":30600},{"week_start":"2026-05-11","total_revenue":49540,"actual_revenue":49540},{"week_start":"2026-05-18","total_revenue":29540,"actual_revenue":29540},{"week_start":"2026-05-25","total_revenue":31300,"actual_revenue":31300}],"lastWeek":31300,"wow":5.9580230196343935},"coupon":{"dist":652,"reg":30,"used":12,"actRate":4.601226993865031,"useConv":40,"dealers":[{"name":"광주 광산구 서구 대리점","rep":"김OOO","dist":19,"reg":10,"used":7,"act":52.63157894736842,"conv":70},{"name":"전주 완산구 대리점","rep":"오OO","dist":14,"reg":5,"used":0,"act":35.714285714285715,"conv":0},{"name":"대전 대리점","rep":"황OO","dist":17,"reg":4,"used":2,"act":23.52941176470588,"conv":50},{"name":"삼척 대리점","rep":"조OO","dist":20,"reg":2,"used":0,"act":10,"conv":0},{"name":"부산남구대리점","rep":"탁OO","dist":13,"reg":2,"used":1,"act":15.384615384615385,"conv":50},{"name":"대구 달서구대리점📞","rep":"박OO","dist":18,"reg":1,"used":1,"act":5.555555555555555,"conv":100},{"name":"김해대리점","rep":"황OO","dist":15,"reg":1,"used":0,"act":6.666666666666667,"conv":0},{"name":"천안 동남구 대리점","rep":"김OO","dist":15,"reg":1,"used":1,"act":6.666666666666667,"conv":100},{"name":"천안 서북구 대리점","rep":"김OO","dist":14,"reg":1,"used":0,"act":7.142857142857142,"conv":0},{"name":"전남 여수 대리점","rep":"유OO","dist":13,"reg":1,"used":0,"act":7.6923076923076925,"conv":0},{"name":"경기 이천 대리점","rep":"서OO","dist":13,"reg":1,"used":0,"act":7.6923076923076925,"conv":0},{"name":"인천 영종도 대리점","rep":"유OO","dist":11,"reg":1,"used":0,"act":9.090909090909092,"conv":0},{"name":"경기도 의정부,  강북구 대리점","rep":"현OO","dist":30,"reg":0,"used":0,"act":0,"conv":0},{"name":"울산 대리점","rep":"최OO","dist":27,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 고양 대리점","rep":"이OO","dist":26,"reg":0,"used":0,"act":0,"conv":0},{"name":"창원대리점","rep":"김OO","dist":26,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기수원대리점","rep":"김OO","dist":25,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 부천대리점","rep":"이OO","dist":22,"reg":0,"used":0,"act":0,"conv":0},{"name":"서울 동대문구, 성북구 대리점","rep":"박OO","dist":21,"reg":0,"used":0,"act":0,"conv":0},{"name":"인천 대리점(서해구/검단구)","rep":"송OO","dist":19,"reg":0,"used":0,"act":0,"conv":0},{"name":"서울 강남구 대리점","rep":"신OO","dist":18,"reg":0,"used":0,"act":0,"conv":0},{"name":"충북 청주 대리점","rep":"정OO","dist":18,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 김포 대리점","rep":"이OO","dist":17,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 파주대리점📞","rep":"최OO","dist":17,"reg":0,"used":0,"act":0,"conv":0},{"name":"구미 대리점","rep":"김OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"해운대 대리점","rep":"윤OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"광주 북구대리점📞","rep":"손OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 광주 대리점","rep":"서OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"전주-덕진구, 완주군 대리점","rep":"임OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"경남 진주 대리점📞","rep":"박OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"부산진구대리점","rep":"신OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"장유 대리점","rep":"화OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경남 거제 대리점","rep":"김OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경주 불국사히어로","rep":"서OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 양주 대리점","rep":"송OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"수영구 대리점","rep":"송OO","dist":12,"reg":0,"used":0,"act":0,"conv":0},{"name":"연제구대리점","rep":"이OO","dist":12,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 대리점(여주시)","rep":"김OO","dist":10,"reg":0,"used":0,"act":0,"conv":0},{"name":"광주 동구대리점📞","rep":"엄OO","dist":10,"reg":0,"used":0,"act":0,"conv":0}],"zeroCount":27},"collection":{"agencies":[{"agency_id":5,"agency_name":"광주 광산대리점","uncollected_count":0,"collected_count":12,"total_weight_kg":22.2,"uncollected_rate":0},{"agency_id":3,"agency_name":"부산 진구 대리점","uncollected_count":0,"collected_count":3,"total_weight_kg":33,"uncollected_rate":0},{"agency_id":1,"agency_name":"해운대 대리점","uncollected_count":0,"collected_count":3,"total_weight_kg":19.4,"uncollected_rate":0},{"agency_id":7,"agency_name":"대전 중구 대리점","uncollected_count":0,"collected_count":2,"total_weight_kg":4.7,"uncollected_rate":0},{"agency_id":43,"agency_name":"인천 중구대리점","uncollected_count":0,"collected_count":2,"total_weight_kg":9.8,"uncollected_rate":0},{"agency_id":9,"agency_name":"대구 달서대리점","uncollected_count":0,"collected_count":1,"total_weight_kg":1.8,"uncollected_rate":0},{"agency_id":10,"agency_name":"부산 남구점","uncollected_count":0,"collected_count":1,"total_weight_kg":0,"uncollected_rate":0},{"agency_id":18,"agency_name":"천안 동남구","uncollected_count":0,"collected_count":1,"total_weight_kg":5.2,"uncollected_rate":0},{"agency_id":4,"agency_name":"철원근북면","uncollected_count":0,"collected_count":1,"total_weight_kg":1.9,"uncollected_rate":0}],"totalCollected":26,"totalWeight":98,"activeCount":9},"review":{"total":8,"done":1,"pending":7,"rate":12.5,"byCategory":{"블로그":{"total":3,"done":1},"인스타":{"total":5,"done":0}},"latest":"2026-05-27","items":[{"handle":"행복한쀼","category":"블로그","region":"광주 광산동","status":"완료","name":"전OO","title":"광주 광산구 수완동 분리수거대행 수거히어로가격 솔직 후기","url":"https://blog.naver.com/1009ssun/224298285163"},{"handle":"해토리님","category":"블로그","region":"부산진구","status":"미완료","name":"김OO","title":"","url":""},{"handle":"불꽃파이리","category":"블로그","region":"경기 의정부 신곡동","status":"미완료","name":"김OO","title":"","url":""},{"handle":"루루민","category":"인스타","region":"경기 파주시","status":"미완료","name":"최OO","title":"","url":""},{"handle":"미미럽","category":"인스타","region":"경기 의정부시 동이로","status":"미완료","name":"최OO","title":"","url":""},{"handle":"하람구름엄마","category":"인스타","region":"서울 노원구 화랑로","status":"미완료","name":"이OO","title":"","url":""},{"handle":"윰레빗","category":"인스타","region":"경기 파주시","status":"미완료","name":"최OO","title":"","url":""},{"handle":"태콤달콤","category":"인스타","region":"경기 파주시","status":"미완료","name":"김OO","title":"","url":""}]}};
+const DATA = {"asOf":"2026-06-01","totals":{"userTotal":1638,"userToday":16,"userVerified":658,"userUnverified":980,"heroTotal":139,"heroActive":69,"newUserToday":16,"newHeroToday":0},"heroSignups":["2026-03-25","2026-03-25","2026-03-25","2026-03-27","2026-03-27","2026-03-30","2026-04-08","2026-04-09","2026-04-09","2026-04-10","2026-04-11","2026-04-13","2026-04-14","2026-04-14","2026-04-15","2026-04-16","2026-04-20","2026-04-20","2026-04-21","2026-04-21","2026-04-22","2026-04-22","2026-04-23","2026-04-23","2026-04-23","2026-04-23","2026-04-23","2026-04-26","2026-04-27","2026-04-27","2026-04-27","2026-04-27","2026-04-28","2026-04-28","2026-04-29","2026-04-29","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-04-30","2026-05-02","2026-05-02","2026-05-03","2026-05-04","2026-05-04","2026-05-04","2026-05-04","2026-05-04","2026-05-06","2026-05-07","2026-05-07","2026-05-07","2026-05-07","2026-05-07","2026-05-08","2026-05-08","2026-05-11","2026-05-11","2026-05-11","2026-05-12","2026-05-13","2026-05-13","2026-05-13","2026-05-14","2026-05-14","2026-05-14","2026-05-14","2026-05-14","2026-05-15","2026-05-15","2026-05-15","2026-05-15","2026-05-16","2026-05-16","2026-05-16","2026-05-16","2026-05-16","2026-05-18","2026-05-18","2026-05-19","2026-05-19","2026-05-20","2026-05-20","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-21","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-22","2026-05-24","2026-05-26","2026-05-26","2026-05-26","2026-05-27","2026-05-27","2026-05-27","2026-05-28","2026-05-29","2026-05-29","2026-05-30","2026-05-31","2026-05-31","2026-05-31","2026-05-31"],"payments":[{"date":"2026-06-01","amount":19900},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-31","amount":0},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":15800},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":1500},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":6700},{"date":"2026-05-30","amount":0},{"date":"2026-05-30","amount":6400},{"date":"2026-05-29","amount":4320},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":6200},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":2540},{"date":"2026-05-29","amount":0},{"date":"2026-05-29","amount":5200},{"date":"2026-05-28","amount":0},{"date":"2026-05-28","amount":0},{"date":"2026-05-28","amount":5200},{"date":"2026-05-28","amount":0},{"date":"2026-05-28","amount":2840},{"date":"2026-05-28","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":1500},{"date":"2026-05-27","amount":0},{"date":"2026-05-27","amount":0},{"date":"2026-05-26","amount":7820},{"date":"2026-05-25","amount":0},{"date":"2026-05-25","amount":0},{"date":"2026-05-25","amount":0},{"date":"2026-05-25","amount":0},{"date":"2026-05-24","amount":0},{"date":"2026-05-23","amount":0},{"date":"2026-05-22","amount":8360},{"date":"2026-05-22","amount":9000},{"date":"2026-05-22","amount":9000},{"date":"2026-05-22","amount":540},{"date":"2026-05-22","amount":2960},{"date":"2026-05-22","amount":0},{"date":"2026-05-22","amount":220},{"date":"2026-05-21","amount":0},{"date":"2026-05-20","amount":0},{"date":"2026-05-17","amount":16640},{"date":"2026-05-16","amount":19900},{"date":"2026-05-14","amount":6500},{"date":"2026-05-14","amount":6500},{"date":"2026-05-13","amount":0},{"date":"2026-05-13","amount":0},{"date":"2026-05-13","amount":0},{"date":"2026-05-09","amount":24500},{"date":"2026-05-08","amount":0},{"date":"2026-05-08","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-07","amount":0},{"date":"2026-05-06","amount":0},{"date":"2026-05-06","amount":0},{"date":"2026-05-06","amount":0},{"date":"2026-05-05","amount":6100},{"date":"2026-05-02","amount":0},{"date":"2026-05-01","amount":17000},{"date":"2026-05-01","amount":6500},{"date":"2026-04-30","amount":0},{"date":"2026-04-30","amount":0},{"date":"2026-04-30","amount":0},{"date":"2026-04-30","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-29","amount":0},{"date":"2026-04-28","amount":0},{"date":"2026-04-28","amount":0},{"date":"2026-04-27","amount":0},{"date":"2026-04-27","amount":0},{"date":"2026-04-27","amount":1500},{"date":"2026-04-27","amount":0},{"date":"2026-04-24","amount":9140},{"date":"2026-04-24","amount":0},{"date":"2026-04-24","amount":0},{"date":"2026-04-24","amount":0},{"date":"2026-04-24","amount":1500},{"date":"2026-04-23","amount":6500},{"date":"2026-04-23","amount":12500},{"date":"2026-04-23","amount":0},{"date":"2026-04-22","amount":5260},{"date":"2026-04-22","amount":0},{"date":"2026-04-21","amount":7640},{"date":"2026-04-21","amount":0},{"date":"2026-04-13","amount":0},{"date":"2026-04-13","amount":0},{"date":"2026-04-08","amount":0},{"date":"2026-04-06","amount":29060},{"date":"2026-04-06","amount":9000},{"date":"2026-04-01","amount":9000},{"date":"2026-03-25","amount":6500}],"collectionDaily":[{"date":"2026-05-26","total":2,"completed":1,"cancelled":1,"impossible":0},{"date":"2026-05-27","total":6,"completed":4,"cancelled":2,"impossible":0},{"date":"2026-05-28","total":6,"completed":5,"cancelled":1,"impossible":0},{"date":"2026-05-29","total":10,"completed":8,"cancelled":2,"impossible":0},{"date":"2026-05-30","total":5,"completed":5,"cancelled":0,"impossible":0},{"date":"2026-05-31","total":5,"completed":5,"cancelled":0,"impossible":0},{"date":"2026-06-01","total":1,"completed":0,"cancelled":0,"impossible":0}],"collectionMonths":[{"ym":"2026-02","agency_count":45,"total_uncollected_count":0,"total_collected_count":0,"total_weight_kg":0,"total_uncollected_rate":0},{"ym":"2026-03","agency_count":45,"total_uncollected_count":0,"total_collected_count":0,"total_weight_kg":0,"total_uncollected_rate":0},{"ym":"2026-04","agency_count":45,"total_uncollected_count":0,"total_collected_count":12,"total_weight_kg":64.4,"total_uncollected_rate":0},{"ym":"2026-05","agency_count":45,"total_uncollected_count":0,"total_collected_count":41,"total_weight_kg":151.9,"total_uncollected_rate":0},{"ym":"2026-06","agency_count":45,"total_uncollected_count":0,"total_collected_count":0,"total_weight_kg":0,"total_uncollected_rate":0}],"agencyPerf":[{"agency":"광주 광산대리점","collected":18,"uncollected":0,"weight":31.2},{"agency":"철원근북면","collected":13,"uncollected":0,"weight":66.30000000000001},{"agency":"부산 진구 대리점","collected":4,"uncollected":0,"weight":50},{"agency":"해운대 대리점","collected":4,"uncollected":0,"weight":22.1},{"agency":"대전 중구 대리점","collected":3,"uncollected":0,"weight":7.6},{"agency":"부산 남구점","collected":3,"uncollected":0,"weight":3.9},{"agency":"인천 중구대리점","collected":2,"uncollected":0,"weight":9.8},{"agency":"거제대리점","collected":1,"uncollected":0,"weight":7},{"agency":"대구 달서대리점","collected":1,"uncollected":0,"weight":1.8},{"agency":"부산 수영대리점","collected":1,"uncollected":0,"weight":1.6},{"agency":"수원대리점","collected":1,"uncollected":0,"weight":3},{"agency":"이천 대리점","collected":1,"uncollected":0,"weight":6.8},{"agency":"천안 동남구","collected":1,"uncollected":0,"weight":5.2}],"region":{"top":[{"region":"광주","collected":18},{"region":"철원근북면","collected":13},{"region":"부산","collected":8},{"region":"해운대","collected":4},{"region":"대전","collected":3},{"region":"인천","collected":2},{"region":"거제대리점","collected":1},{"region":"대구","collected":1},{"region":"수원대리점","collected":1},{"region":"이천","collected":1},{"region":"천안","collected":1}],"totalCompleted":53,"totalWeight":216.3,"uncollRate":0},"coupon":{"dist":652,"reg":30,"used":12,"actRate":4.601226993865031,"useConv":40,"zeroCount":27,"dealers":[{"name":"광주 광산구 서구 대리점","rep":"김OOO","dist":19,"reg":10,"used":7,"act":52.63157894736842,"conv":70},{"name":"전주 완산구 대리점","rep":"오OO","dist":14,"reg":5,"used":0,"act":35.714285714285715,"conv":0},{"name":"대전 대리점","rep":"황OO","dist":17,"reg":4,"used":2,"act":23.52941176470588,"conv":50},{"name":"삼척 대리점","rep":"조OO","dist":20,"reg":2,"used":0,"act":10,"conv":0},{"name":"부산남구대리점","rep":"탁OO","dist":13,"reg":2,"used":1,"act":15.384615384615385,"conv":50},{"name":"대구 달서구대리점📞","rep":"박OO","dist":18,"reg":1,"used":1,"act":5.555555555555555,"conv":100},{"name":"김해대리점","rep":"황OO","dist":15,"reg":1,"used":0,"act":6.666666666666667,"conv":0},{"name":"천안 동남구 대리점","rep":"김OO","dist":15,"reg":1,"used":1,"act":6.666666666666667,"conv":100},{"name":"천안 서북구 대리점","rep":"김OO","dist":14,"reg":1,"used":0,"act":7.142857142857142,"conv":0},{"name":"전남 여수 대리점","rep":"유OO","dist":13,"reg":1,"used":0,"act":7.6923076923076925,"conv":0},{"name":"경기 이천 대리점","rep":"서OO","dist":13,"reg":1,"used":0,"act":7.6923076923076925,"conv":0},{"name":"인천 영종도 대리점","rep":"유OO","dist":11,"reg":1,"used":0,"act":9.090909090909092,"conv":0},{"name":"경기도 의정부,  강북구 대리점","rep":"현OO","dist":30,"reg":0,"used":0,"act":0,"conv":0},{"name":"울산 대리점","rep":"최OO","dist":27,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 고양 대리점","rep":"이OO","dist":26,"reg":0,"used":0,"act":0,"conv":0},{"name":"창원대리점","rep":"김OO","dist":26,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기수원대리점","rep":"김OO","dist":25,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 부천대리점","rep":"이OO","dist":22,"reg":0,"used":0,"act":0,"conv":0},{"name":"서울 동대문구, 성북구 대리점","rep":"박OO","dist":21,"reg":0,"used":0,"act":0,"conv":0},{"name":"인천 대리점(서해구/검단구)","rep":"송OO","dist":19,"reg":0,"used":0,"act":0,"conv":0},{"name":"서울 강남구 대리점","rep":"신OO","dist":18,"reg":0,"used":0,"act":0,"conv":0},{"name":"충북 청주 대리점","rep":"정OO","dist":18,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 김포 대리점","rep":"이OO","dist":17,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 파주대리점📞","rep":"최OO","dist":17,"reg":0,"used":0,"act":0,"conv":0},{"name":"구미 대리점","rep":"김OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"해운대 대리점","rep":"윤OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"광주 북구대리점📞","rep":"손OO","dist":16,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 광주 대리점","rep":"서OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"전주-덕진구, 완주군 대리점","rep":"임OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"경남 진주 대리점📞","rep":"박OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"부산진구대리점","rep":"신OO","dist":15,"reg":0,"used":0,"act":0,"conv":0},{"name":"장유 대리점","rep":"화OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경남 거제 대리점","rep":"김OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경주 불국사히어로","rep":"서OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 양주 대리점","rep":"송OO","dist":13,"reg":0,"used":0,"act":0,"conv":0},{"name":"수영구 대리점","rep":"송OO","dist":12,"reg":0,"used":0,"act":0,"conv":0},{"name":"연제구대리점","rep":"이OO","dist":12,"reg":0,"used":0,"act":0,"conv":0},{"name":"경기 대리점(여주시)","rep":"김OO","dist":10,"reg":0,"used":0,"act":0,"conv":0},{"name":"광주 동구대리점📞","rep":"엄OO","dist":10,"reg":0,"used":0,"act":0,"conv":0}]},"review":{"total":8,"done":1,"pending":7,"rate":12.5,"byCategory":{"블로그":{"total":3,"done":1},"인스타":{"total":5,"done":0}},"latest":"2026-05-27","items":[{"handle":"행복한쀼","category":"블로그","region":"광주 광산동","status":"완료","name":"전OO","title":"광주 광산구 수완동 분리수거대행 수거히어로가격 솔직 후기","url":"https://blog.naver.com/1009ssun/224298285163"},{"handle":"해토리님","category":"블로그","region":"부산진구","status":"미완료","name":"김OO","title":"","url":""},{"handle":"불꽃파이리","category":"블로그","region":"경기 의정부 신곡동","status":"미완료","name":"김OO","title":"","url":""},{"handle":"루루민","category":"인스타","region":"경기 파주시","status":"미완료","name":"최OO","title":"","url":""},{"handle":"미미럽","category":"인스타","region":"경기 의정부시 동이로","status":"미완료","name":"최OO","title":"","url":""},{"handle":"하람구름엄마","category":"인스타","region":"서울 노원구 화랑로","status":"미완료","name":"이OO","title":"","url":""},{"handle":"윰레빗","category":"인스타","region":"경기 파주시","status":"미완료","name":"최OO","title":"","url":""},{"handle":"태콤달콤","category":"인스타","region":"경기 파주시","status":"미완료","name":"김OO","title":"","url":""}]}};
+let GRAN = 'week';
 const won = n => '₩' + Number(n||0).toLocaleString();
 const fmt = n => Number(n||0).toLocaleString();
-const deltaHtml = (v, suffix='%') => {
-  if (v===null||v===undefined) return '<span class="delta flat">— 데이터없음</span>';
-  const up = v>=0; const cls = v>0?'up':(v<0?'down':'flat');
-  const arr = v>0?'▲':(v<0?'▼':'■');
-  return '<span class="delta '+cls+'">'+arr+' '+Math.abs(v).toFixed(1)+suffix+'</span>';
-};
-// KPI 카드
-const m=DATA.members,h=DATA.heroes,r=DATA.revenue,c=DATA.coupon;
-const kpis=[
-  {label:'누적 회원수',val:fmt(m.total)+'<small>명</small>',extra:'<span class="delta up">+오늘 '+m.today+'명</span>',sub:'인증 '+fmt(m.verified)+' / 미인증 '+fmt(m.unverified)+' (인증률 '+m.verifyRate.toFixed(1)+'%)'},
-  {label:'누적 히어로',val:fmt(h.total)+'<small>명</small>',extra:deltaHtml(h.wow)+' <span class="sub2">WoW</span>',sub:'이번주 신규 '+h.lastNew+'명 (전주 '+h.prevNew+'명) · 활동 '+h.active},
-  {label:'당월 매출 (5월)',val:won(r.month),extra:deltaHtml(r.mom)+' <span class="sub2">MoM</span>',sub:'전월 '+won(r.prevMonth)+' · 연누적 '+won(r.year)},
-  {label:'주간 매출',val:won(r.lastWeek),extra:deltaHtml(r.wow)+' <span class="sub2">WoW</span>',sub:'당일 '+won(r.today)+' · 환불 '+won(r.refund)},
-  {label:'결제 건수 (성공)',val:fmt(r.paid)+'<small>건</small>',extra:'<span class="delta up">오늘 '+r.todayCount+'건</span>',sub:'실패 '+r.failed+' · 미납 '+r.unpaid},
-  {label:'쿠폰 활성화율',val:c.actRate.toFixed(1)+'<small>%</small>',extra:'<span class="delta flat">등록 '+c.reg+'/배포 '+c.dist+'</span>',sub:'미등록 대리점 '+c.zeroCount+'곳'},
-  {label:'쿠폰 사용전환율',val:c.useConv.toFixed(1)+'<small>%</small>',extra:'<span class="delta up">사용 '+c.used+'/등록 '+c.reg+'</span>',sub:'배포대비 실사용 '+(c.used/c.dist*100).toFixed(1)+'%'},
-  {label:'수거 실적 (5월)',val:fmt(DATA.collection.totalCollected)+'<small>건</small>',extra:'<span class="delta up">'+DATA.collection.totalWeight.toFixed(1)+'kg</span>',sub:'활동 대리점 '+DATA.collection.activeCount+'곳 · 미수거율 0%'},
-];
-if(DATA.review){const rv=DATA.review;kpis.push({label:'리뷰 콘텐츠 완료율',val:rv.rate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(rv.done?'up':'flat')+'">완료 '+rv.done+'/'+rv.total+'</span>',sub:'미완료 '+rv.pending+'건 · 최근 '+(rv.latest||'-')});}
-document.getElementById('kpis').innerHTML = kpis.map(k=>
-  '<div class="card"><div class="label">'+k.label+'</div><div class="val">'+k.val+'</div>'+k.extra+'<div class="sub2">'+k.sub+'</div></div>').join('');
+const charts = {};
 
-Chart.defaults.color='#9aa0b0'; Chart.defaults.borderColor='#2c3142'; Chart.defaults.font.family="'Segoe UI','Malgun Gothic',sans-serif";
-const wkLab = h.weekly.map(w=>w.week.slice(5,10));
-new Chart(heroChart,{data:{labels:wkLab,datasets:[
-  {type:'bar',label:'신규',data:h.weekly.map(w=>w.new),backgroundColor:'#4f7cff',borderRadius:5,yAxisID:'y'},
-  {type:'line',label:'누적',data:h.weekly.map(w=>w.cumulative),borderColor:'#f7b955',backgroundColor:'#f7b955',tension:.3,yAxisID:'y1'}
-]},options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},scales:{y:{position:'left',title:{display:true,text:'신규'}},y1:{position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'누적'}}}}});
+// ---- 날짜 버킷 ----
+function isoMonday(ds){const x=new Date(ds+'T00:00:00Z');const d=x.getUTCDay();x.setUTCDate(x.getUTCDate()-(d===0?6:d-1));return x.toISOString().slice(0,10);}
+function bkey(ds,g){if(g==='day')return ds;if(g==='week')return isoMonday(ds);return ds.slice(0,7);}
+function blabel(k,g){if(g==='month')return k;if(g==='day')return k.slice(5);return k.slice(5);}
+function seriesFromDates(dates,g){const m={};dates.forEach(d=>{const k=bkey(d,g);m[k]=(m[k]||0)+1;});return Object.keys(m).sort().map(k=>({k,v:m[k]}));}
+function seriesSum(rows,g,field){const m={};rows.forEach(r=>{if(!r.date)return;const k=bkey(r.date,g);m[k]=(m[k]||0)+(field?r[field]:1);});return Object.keys(m).sort().map(k=>({k,v:m[k]}));}
 
-const rw=r.weekly.filter(w=>w.total_revenue>0);
-new Chart(revChart,{type:'bar',data:{labels:rw.map(w=>w.week_start.slice(5)),datasets:[{label:'매출',data:rw.map(w=>w.total_revenue),backgroundColor:'#22c55e',borderRadius:5}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₩'+v.toLocaleString()}}}}});
+// ---- KPI 계산 ----
+const T=DATA.totals;
+const heroNew7=DATA.heroSignups.filter(d=>{const dt=new Date(d),now=new Date(DATA.asOf);return (now-dt)/86400000<7;}).length;
+const curMonthYm=DATA.asOf.slice(0,7);
+const pays=DATA.payments;
+const rev7=pays.filter(p=>{const dt=new Date(p.date),now=new Date(DATA.asOf);return (now-dt)/86400000<7;}).reduce((s,p)=>s+p.amount,0);
+const revMonth=pays.filter(p=>p.date.slice(0,7)===curMonthYm).reduce((s,p)=>s+p.amount,0);
+const prevYm=(()=>{const [y,m]=curMonthYm.split('-').map(Number);const pm=m===1?12:m-1;const py=m===1?y-1:y;return py+'-'+String(pm).padStart(2,'0');})();
+const revPrevMonth=pays.filter(p=>p.date.slice(0,7)===prevYm).reduce((s,p)=>s+p.amount,0);
+const payTotal=pays.length;
 
-new Chart(monthChart,{type:'line',data:{labels:r.monthly.map(x=>x.year+'-'+String(x.month).padStart(2,'0')),datasets:[
-  {label:'매출',data:r.monthly.map(x=>x.total_revenue),borderColor:'#4f7cff',backgroundColor:'rgba(79,124,255,.15)',fill:true,tension:.3},
-  {label:'실매출',data:r.monthly.map(x=>x.actual_revenue),borderColor:'#f7b955',tension:.3}
-]},options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},scales:{y:{ticks:{callback:v=>'₩'+v.toLocaleString()}}}}});
+function deltaHtml(v){if(v===null||v===undefined)return '<span class="delta flat">—</span>';const cls=v>0?'up':(v<0?'down':'flat');const a=v>0?'▲':(v<0?'▼':'■');return '<span class="delta '+cls+'">'+a+' '+Math.abs(v).toFixed(1)+'%</span>';}
+const momRev=revPrevMonth?((revMonth-revPrevMonth)/revPrevMonth*100):null;
+function cardHTML(k){return '<div class="card"><div class="label">'+k.label+'</div><div class="val">'+k.val+'</div>'+(k.extra||'')+(k.sub?'<div class="sub2">'+k.sub+'</div>':'')+'</div>';}
 
-new Chart(funnelChart,{type:'bar',data:{labels:['배포','등록','사용'],datasets:[{label:'쿠폰 수',data:[c.dist,c.reg,c.used],backgroundColor:['#3a4360','#4f7cff','#22c55e'],borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const arr=[c.dist,c.reg,c.used];return ctx.parsed.x+'개 ('+(ctx.parsed.x/c.dist*100).toFixed(1)+'%)';}}}}}});
+// 1. 이용자&히어로
+document.getElementById('k-user').innerHTML=[
+ {label:'신규 회원 (오늘)',val:fmt(T.newUserToday)+'<small>명</small>',extra:'<span class="delta flat">주/월 집계: 권한 제약</span>',sub:'사용자목록 API 권한 필요'},
+ {label:'누적 회원',val:fmt(T.userTotal)+'<small>명</small>',extra:'<span class="delta up">인증률 '+(T.userVerified/(T.userVerified+T.userUnverified)*100).toFixed(1)+'%</span>',sub:'인증 '+fmt(T.userVerified)+' / 미인증 '+fmt(T.userUnverified)},
+ {label:'신규 히어로 (최근 7일)',val:fmt(heroNew7)+'<small>명</small>',extra:'<span class="delta up">오늘 +'+fmt(T.newHeroToday)+'</span>',sub:'기간 추이는 상세 참고'},
+ {label:'누적 히어로',val:fmt(T.heroTotal)+'<small>명</small>',extra:'<span class="delta up">활동 '+fmt(T.heroActive)+'</span>',sub:'활동 히어로 비중 '+(T.heroActive/T.heroTotal*100).toFixed(0)+'%'},
+].map(cardHTML).join('');
 
-const topD=[...c.dealers].filter(d=>d.reg>0).sort((a,b)=>b.act-a.act);
-new Chart(dealerChart,{type:'bar',data:{labels:topD.map(d=>d.name.replace(/대리점|📞/g,'').trim()),datasets:[
-  {label:'활성화율%',data:topD.map(d=>+d.act.toFixed(1)),backgroundColor:'#4f7cff',borderRadius:5},
-  {label:'사용전환율%',data:topD.map(d=>+d.conv.toFixed(1)),backgroundColor:'#22c55e',borderRadius:5}
-]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},scales:{x:{max:100}}}});
+// 2. 매출현황
+document.getElementById('k-sales').innerHTML=[
+ {label:'총 결제 건수',val:fmt(payTotal)+'<small>건</small>',extra:'<span class="delta up">PAID 기준</span>',sub:'결제 추이는 상세 참고'},
+ {label:'주간 매출 (최근 7일)',val:won(rev7),sub:'최근 7일 결제 합계'},
+ {label:'월간 매출 ('+curMonthYm.slice(5)+'월 MTD)',val:won(revMonth),extra:deltaHtml(momRev)+' <span class="sub2">전월비</span>',sub:'전월('+prevYm.slice(5)+'월) '+won(revPrevMonth)},
+].map(cardHTML).join('');
 
-// 대리점 테이블
-const dealersSorted=[...c.dealers].sort((a,b)=>b.reg-a.reg||b.dist-a.dist);
-dealerTable.innerHTML='<thead><tr><th>대리점</th><th>대표</th><th>배포</th><th>등록</th><th>사용</th><th>활성화율</th><th>사용전환</th></tr></thead><tbody>'+
- dealersSorted.map(d=>'<tr><td>'+d.name+'</td><td>'+d.rep+'</td><td>'+d.dist+'</td><td>'+d.reg+'</td><td>'+d.used+'</td>'+
- '<td><span class="bar"><i style="width:'+Math.min(100,d.act)+'%"></i></span>'+d.act.toFixed(1)+'%</td>'+
- '<td>'+(d.reg?d.conv.toFixed(0)+'%':'-')+'</td></tr>').join('')+'</tbody>';
+// 3. 수거 실적
+const top=DATA.region.top.slice(0,3);
+document.getElementById('k-coll').innerHTML=[
+ {label:'수거 실적 (누적)',val:fmt(DATA.region.totalCompleted)+'<small>건</small>',extra:'<span class="delta up">'+DATA.region.totalWeight.toFixed(1)+'kg</span>',sub:'완료 기준 누적'},
+ {label:'지역별 TOP3',val:'<div class="top3">'+top.map((t,i)=>'<div class="t"><div class="r">'+(i+1)+'위</div><div class="n">'+t.region+'</div><div class="v">'+t.collected+'건</div></div>').join('')+'</div>',sub:''},
+ {label:'미수거율',val:DATA.region.uncollRate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(DATA.region.uncollRate<5?'up':'down')+'">'+(DATA.region.uncollRate<5?'양호':'주의')+'</span>',sub:'미수거 '+fmt(Math.round(DATA.region.totalCompleted*DATA.region.uncollRate/100))+'건 추정'},
+].map(cardHTML).join('');
 
-// 수거 테이블
-collTable.innerHTML='<thead><tr><th>대리점</th><th>수거완료</th><th>미수거</th><th>중량(kg)</th><th>수거완료율</th></tr></thead><tbody>'+
- DATA.collection.agencies.map(a=>{const dn=a.collected_count+a.uncollected_count;const rate=dn?(a.collected_count/dn*100):0;
- return '<tr><td>'+a.agency_name+'</td><td>'+a.collected_count+'</td><td>'+a.uncollected_count+'</td><td>'+a.total_weight_kg+'</td><td><span class="pill on">'+rate.toFixed(0)+'%</span></td></tr>';}).join('')+'</tbody>';
+// 4. 대리점 미션
+const cp=DATA.coupon;
+document.getElementById('k-coupon').innerHTML=[
+ {label:'쿠폰 활성화율',val:cp.actRate.toFixed(1)+'<small>%</small>',extra:'<span class="delta flat">등록 '+cp.reg+'/배포 '+cp.dist+'</span>',sub:'미등록 대리점 '+cp.zeroCount+'곳'},
+ {label:'쿠폰 사용 전환율',val:cp.useConv.toFixed(1)+'<small>%</small>',extra:'<span class="delta up">사용 '+cp.used+'/등록 '+cp.reg+'</span>',sub:'배포대비 실사용 '+(cp.used/cp.dist*100).toFixed(1)+'%'},
+].map(cardHTML).join('');
 
-// 월별/주간 매출 테이블
-const momCell=(cur,prev)=> (prev? deltaHtml((cur-prev)/prev*100):'<span class="delta flat">—</span>');
-monthTable.innerHTML='<thead><tr><th>월</th><th>매출</th><th>실매출</th><th>환불</th><th>MoM</th></tr></thead><tbody>'+
- r.monthly.map((m,i)=>{const pv=i>0?r.monthly[i-1].total_revenue:0;
- return '<tr><td>'+m.year+'-'+String(m.month).padStart(2,'0')+'</td><td>'+won(m.total_revenue)+'</td><td>'+won(m.actual_revenue)+'</td><td>'+won(m.refund_amount)+'</td><td>'+momCell(m.total_revenue,pv)+'</td></tr>';}).join('')+'</tbody>';
+// 5. 리뷰
+if(DATA.review){const rv=DATA.review;
+ document.getElementById('k-review').innerHTML=[
+  {label:'콘텐츠 완료율',val:rv.rate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(rv.done?'up':'flat')+'">완료 '+rv.done+'/'+rv.total+'</span>',sub:'미완료 '+rv.pending+'건'},
+  {label:'채널별 진행',val:Object.keys(rv.byCategory).map(k=>k+' '+rv.byCategory[k].done+'/'+rv.byCategory[k].total).join('<br>'),sub:'최근 업로드 '+(rv.latest||'-')},
+ ].map(cardHTML).join('');}
 
-const rw2=r.weekly.filter(w=>w.total_revenue>0);
-weekTable.innerHTML='<thead><tr><th>주 시작(월)</th><th>매출</th><th>WoW</th></tr></thead><tbody>'+
- rw2.map((w,i)=>{const pv=i>0?rw2[i-1].total_revenue:0;
- return '<tr><td>'+w.week_start+'</td><td>'+won(w.total_revenue)+'</td><td>'+momCell(w.total_revenue,pv)+'</td></tr>';}).join('')+'</tbody>';
+// ---- 차트 ----
+Chart.defaults.color='#9aa0b0';Chart.defaults.borderColor='#2c3142';Chart.defaults.font.family="'Segoe UI','Malgun Gothic',sans-serif";
+function destroy(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function granText(){return GRAN==='day'?'(일자별)':GRAN==='week'?'(주별)':'(월별)';}
 
-// 히어로 주간 테이블
-heroTable.innerHTML='<thead><tr><th>주차(월~일)</th><th>신규</th><th>누적</th><th>WoW</th></tr></thead><tbody>'+
- h.weekly.map((w,i)=>{const pv=i>0?h.weekly[i-1].new:0;
- return '<tr><td>'+w.week+'</td><td>'+w.new+'</td><td>'+w.cumulative+'</td><td>'+(i>0&&pv?momCell(w.new,pv):'<span class="delta flat">—</span>')+'</td></tr>';}).join('')+'</tbody>';
-
-// 리뷰 체험단 콘텐츠
-if(DATA.review){
-  const rv=DATA.review;
-  new Chart(reviewDonut,{type:'doughnut',data:{labels:['완료','미완료'],datasets:[{data:[rv.done,rv.pending],backgroundColor:['#22c55e','#3a4360'],borderWidth:0}]},options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{boxWidth:12}},tooltip:{callbacks:{label:ctx=>ctx.label+' '+ctx.parsed+'건 ('+(ctx.parsed/rv.total*100).toFixed(1)+'%)'}}}}});
-  const cats=Object.keys(rv.byCategory);
-  new Chart(reviewBar,{type:'bar',data:{labels:cats,datasets:[
-    {label:'완료',data:cats.map(k=>rv.byCategory[k].done),backgroundColor:'#22c55e',borderRadius:4,stack:'s'},
-    {label:'미완료',data:cats.map(k=>rv.byCategory[k].total-rv.byCategory[k].done),backgroundColor:'#f7b955',borderRadius:4,stack:'s'}
-  ]},options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},scales:{x:{stacked:true},y:{stacked:true,ticks:{precision:0}}}}});
-
-  const stPill=s=> s==='완료'?'<span class="pill on">완료</span>':'<span class="pill off">미완료</span>';
-  reviewTable.innerHTML='<thead><tr><th>채널</th><th>아이디</th><th>이름</th><th>지역</th><th>상태</th><th>콘텐츠</th></tr></thead><tbody>'+
-   rv.items.map(it=>{
-     const content = it.status==='완료'&&it.url? '<a href="'+it.url+'" target="_blank" style="color:#8bd5ff">'+(it.title||'링크').slice(0,40)+'…</a>' : '<span class="sub2">-</span>';
-     return '<tr><td>'+it.category+'</td><td>'+it.handle+'</td><td>'+(it.name||'-')+'</td><td>'+it.region+'</td><td>'+stPill(it.status)+'</td><td style="text-align:left">'+content+'</td></tr>';
-   }).join('')+'</tbody>';
+function renderTrends(){
+  const g=GRAN;
+  ['g-hero','g-rev','g-pay','g-coll'].forEach(id=>document.getElementById(id).textContent=granText());
+  // 히어로 신규/누적
+  const hs=seriesFromDates(DATA.heroSignups,g);let cum=0;const hcum=hs.map(x=>cum+=x.v);
+  destroy('heroTrend');charts.heroTrend=new Chart(heroTrend,{data:{labels:hs.map(x=>blabel(x.k,g)),datasets:[
+    {type:'bar',label:'신규',data:hs.map(x=>x.v),backgroundColor:'#4f7cff',borderRadius:4,yAxisID:'y'},
+    {type:'line',label:'누적',data:hcum,borderColor:'#f7b955',backgroundColor:'#f7b955',tension:.3,yAxisID:'y1'}
+  ]},options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},scales:{y:{position:'left'},y1:{position:'right',grid:{drawOnChartArea:false}}}}});
+  // 매출
+  const rs=seriesSum(DATA.payments,g,'amount');
+  destroy('revTrend');charts.revTrend=new Chart(revTrend,{type:'bar',data:{labels:rs.map(x=>blabel(x.k,g)),datasets:[{label:'매출',data:rs.map(x=>x.v),backgroundColor:'#22c55e',borderRadius:4}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'₩'+(v/1000)+'k'}}}}});
+  // 결제건수
+  const cs=seriesSum(DATA.payments,g,null);
+  destroy('payTrend');charts.payTrend=new Chart(payTrend,{type:'line',data:{labels:cs.map(x=>blabel(x.k,g)),datasets:[{label:'결제건수',data:cs.map(x=>x.v),borderColor:'#7c5cff',backgroundColor:'rgba(124,92,255,.15)',fill:true,tension:.3}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{precision:0}}}}});
+  // 수거 추이 (일/주: collectionDaily, 월: collectionMonths)
+  let cl;
+  if(g==='month'){cl=DATA.collectionMonths.filter(m=>m.total_collected_count!=null).map(m=>({k:m.ym,v:m.total_collected_count}));}
+  else{cl=seriesSum(DATA.collectionDaily.map(c=>({date:c.date,v:c.completed})),g,'v');}
+  destroy('collTrend');charts.collTrend=new Chart(collTrend,{type:'bar',data:{labels:cl.map(x=>blabel(x.k,g)),datasets:[{label:'수거완료',data:cl.map(x=>x.v),backgroundColor:'#22c55e',borderRadius:4}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{precision:0}}}}});
+  // 추이 테이블 동기화
+  salesTable.innerHTML='<thead><tr><th>기간</th><th>매출</th><th>결제건수</th></tr></thead><tbody>'+rs.map((x,i)=>'<tr><td>'+x.k+'</td><td>'+won(x.v)+'</td><td>'+(cs[i]?cs[i].v:0)+'</td></tr>').join('')+'</tbody>';
+  heroTable.innerHTML='<thead><tr><th>기간</th><th>신규</th><th>누적</th></tr></thead><tbody>'+hs.map((x,i)=>'<tr><td>'+x.k+'</td><td>'+x.v+'</td><td>'+hcum[i]+'</td></tr>').join('')+'</tbody>';
 }
 
-// 탭 전환
-document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+// 고정 차트(단위 무관)
+new Chart(memberDonut,{type:'doughnut',data:{labels:['인증','미인증'],datasets:[{data:[T.userVerified,T.userUnverified],backgroundColor:['#22c55e','#3a4360'],borderWidth:0}]},options:{maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:12}}}}});
+new Chart(regionChart,{type:'bar',data:{labels:DATA.region.top.slice(0,8).map(t=>t.region),datasets:[{label:'수거완료',data:DATA.region.top.slice(0,8).map(t=>t.collected),backgroundColor:'#4f7cff',borderRadius:4}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+
+// 수거 대리점 테이블
+agencyTable.innerHTML='<thead><tr><th>대리점</th><th>수거완료</th><th>미수거</th><th>중량(kg)</th></tr></thead><tbody>'+DATA.agencyPerf.map(a=>'<tr><td>'+a.agency+'</td><td>'+a.collected+'</td><td>'+a.uncollected+'</td><td>'+(a.weight||0).toFixed(1)+'</td></tr>').join('')+'</tbody>';
+
+// 대리점 쿠폰 테이블
+const ds=[...DATA.coupon.dealers].sort((a,b)=>b.reg-a.reg||b.dist-a.dist);
+dealerTable.innerHTML='<thead><tr><th>대리점</th><th>대표</th><th>배포</th><th>등록</th><th>사용</th><th>활성화율</th><th>사용전환</th></tr></thead><tbody>'+ds.map(d=>'<tr><td>'+d.name+'</td><td>'+d.rep+'</td><td>'+d.dist+'</td><td>'+d.reg+'</td><td>'+d.used+'</td><td><span class="bar"><i style="width:'+Math.min(100,d.act)+'%"></i></span>'+d.act.toFixed(1)+'%</td><td>'+(d.reg?d.conv.toFixed(0)+'%':'-')+'</td></tr>').join('')+'</tbody>';
+
+// 리뷰
+if(DATA.review){const rv=DATA.review;
+ new Chart(reviewDonut,{type:'doughnut',data:{labels:['완료','미완료'],datasets:[{data:[rv.done,rv.pending],backgroundColor:['#22c55e','#3a4360'],borderWidth:0}]},options:{maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{boxWidth:12}}}}});
+ const cats=Object.keys(rv.byCategory);
+ new Chart(reviewBar,{type:'bar',data:{labels:cats,datasets:[{label:'완료',data:cats.map(k=>rv.byCategory[k].done),backgroundColor:'#22c55e',stack:'s',borderRadius:4},{label:'미완료',data:cats.map(k=>rv.byCategory[k].total-rv.byCategory[k].done),backgroundColor:'#f7b955',stack:'s',borderRadius:4}]},options:{maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12}}},scales:{x:{stacked:true},y:{stacked:true,ticks:{precision:0}}}}});
+ const stp=s=>s==='완료'?'<span class="pill on">완료</span>':'<span class="pill off">미완료</span>';
+ reviewTable.innerHTML='<thead><tr><th>채널</th><th>아이디</th><th>이름</th><th>지역</th><th>상태</th><th>콘텐츠</th></tr></thead><tbody>'+rv.items.map(it=>{const c=it.status==='완료'&&it.url?'<a href="'+it.url+'" target="_blank" style="color:#8bd5ff">'+(it.title||'링크').slice(0,36)+'…</a>':'<span class="sub2">-</span>';return '<tr><td>'+it.category+'</td><td>'+it.handle+'</td><td>'+(it.name||'-')+'</td><td>'+it.region+'</td><td>'+stp(it.status)+'</td><td style="text-align:left">'+c+'</td></tr>';}).join('')+'</tbody>';}
+
+renderTrends();
+
+// ---- 인터랙션 ----
+document.getElementById('granSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;GRAN=b.dataset.g;document.querySelectorAll('#granSeg button').forEach(x=>x.classList.toggle('active',x===b));renderTrends();});
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(btn.dataset.tab).classList.add('active');}));
+document.querySelectorAll('.jump').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById(btn.dataset.tab).classList.add('active');
+  document.querySelector('.tab[data-tab="t2"]').classList.add('active');
+  document.getElementById('t2').classList.add('active');
+  renderTrends();
+  setTimeout(()=>document.getElementById(b.dataset.go).scrollIntoView({behavior:'smooth',block:'start'}),60);
 }));
 </script>
-</body>
-</html>
+</body></html>
