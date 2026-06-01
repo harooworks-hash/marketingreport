@@ -79,7 +79,7 @@
 </style></head>
 <body><div class="wrap">
   <header>
-    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 01:37 KST</span></h1>
+    <h1>수고히어로 마케팅 대시보드<span class="sub">Sugohero Admin API (라이브) + Notion 영업문서 + 리뷰 시트 · 기준 2026-06-01 01:46 KST</span></h1>
     <div class="gran">
       <span class="lbl">📅 기간 단위</span>
       <div class="seg" id="granSeg">
@@ -235,10 +235,10 @@ function renderUserSales(g){
 }
 
 // 3. 수거 실적
-const top=DATA.region.top.slice(0,3);
+const topRegions=DATA.region.top.slice(0,3);
 document.getElementById('k-coll').innerHTML=[
  {label:'수거 실적 (누적)',val:fmt(DATA.region.totalCompleted)+'<small>건</small>',extra:'<span class="delta up">'+DATA.region.totalWeight.toFixed(1)+'kg</span>',sub:'완료 기준 누적'},
- {label:'지역별 TOP3',val:'<div class="top3">'+top.map((t,i)=>'<div class="t"><div class="r">'+(i+1)+'위</div><div class="n">'+t.region+'</div><div class="v">'+t.collected+'건</div></div>').join('')+'</div>',sub:''},
+ {label:'지역별 TOP3',val:'<div class="top3">'+topRegions.map((t,i)=>'<div class="t"><div class="r">'+(i+1)+'위</div><div class="n">'+t.region+'</div><div class="v">'+t.collected+'건</div></div>').join('')+'</div>',sub:''},
  {label:'미수거율',val:DATA.region.uncollRate.toFixed(1)+'<small>%</small>',extra:'<span class="delta '+(DATA.region.uncollRate<5?'up':'down')+'">'+(DATA.region.uncollRate<5?'양호':'주의')+'</span>',sub:'미수거 '+fmt(Math.round(DATA.region.totalCompleted*DATA.region.uncollRate/100))+'건 추정'},
 ].map(cardHTML).join('');
 
