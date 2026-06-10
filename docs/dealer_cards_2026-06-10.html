@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>대리점별 미션 카드</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1d24;--line:#2a2f3a;--tx:#e6e9ef;--sub:#8b93a3;--good:#3fb950;--bad:#f85149;--warn:#d29922;--accent:#58a6ff;--ig:#e1306c;--th:#a371f7;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--tx);font-family:'Segoe UI','Malgun Gothic',sans-serif;padding:24px 18px;max-width:1280px;margin:0 auto;}
+  h1{font-size:21px;font-weight:700;}
+  .sub{color:var(--sub);font-size:12px;margin-top:5px;}
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:18px 0 8px;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:5;border-bottom:1px solid var(--line);}
+  #q{flex:1;min-width:200px;background:var(--card);border:1px solid var(--line);border-radius:9px;color:var(--tx);padding:10px 13px;font-size:14px;}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;}
+  .fbtn{background:var(--card);border:1px solid var(--line);border-radius:8px;color:var(--sub);padding:7px 12px;font-size:12px;cursor:pointer;}
+  .fbtn.on{color:#fff;border-color:var(--accent);background:rgba(88,166,255,.16);}
+  .count{color:var(--sub);font-size:12px;margin:4px 2px 14px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px;border-top:3px solid var(--line);}
+  .card.s-good{border-top-color:var(--good);} .card.s-warn{border-top-color:var(--warn);} .card.s-bad{border-top-color:var(--bad);} .card.s-muted{border-top-color:var(--sub);}
+  .chead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:3px;}
+  .cname{font-size:15px;font-weight:700;line-height:1.3;}
+  .cmeta{font-size:11px;color:var(--sub);margin-top:3px;}
+  .badge{display:inline-block;padding:3px 9px;border-radius:7px;font-size:11px;font-weight:700;white-space:nowrap;flex:none;}
+  .badge.good{color:var(--good);background:rgba(63,185,80,.14);} .badge.warn{color:var(--warn);background:rgba(210,153,34,.14);}
+  .badge.bad{color:var(--bad);background:rgba(248,81,73,.14);} .badge.muted{color:var(--sub);background:rgba(139,147,163,.12);}
+  .sec{margin-top:13px;}
+  .sech{font-size:11px;color:var(--sub);font-weight:600;margin-bottom:7px;display:flex;align-items:center;gap:6px;}
+  .sech .ico{font-size:12px;}
+  .mrow{display:flex;align-items:center;gap:8px;font-size:12px;margin:5px 0;}
+  .mk{min-width:52px;color:var(--sub);flex:none;}
+  .prog{flex:1;height:8px;background:var(--line);border-radius:5px;overflow:hidden;}
+  .prog>i{display:block;height:100%;border-radius:5px;}
+  .pv{min-width:64px;text-align:right;font-weight:600;font-size:12px;}
+  .dim{color:var(--sub);}
+  .funnel{display:flex;gap:6px;text-align:center;}
+  .fstep{flex:1;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:8px 4px;}
+  .fstep .n{font-size:17px;font-weight:700;} .fstep .l{font-size:10px;color:var(--sub);margin-top:2px;}
+  .fstep.dist .n{color:var(--accent);} .fstep.reg .n{color:var(--warn);} .fstep.use .n{color:var(--good);}
+  .flyer{display:flex;align-items:center;gap:8px;font-size:12px;}
+  .links{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .lnk{font-size:11px;color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:7px;padding:5px 9px;}
+  .lnk:hover{background:rgba(88,166,255,.1);}
+  .lnk.off{color:var(--sub);border-style:dashed;pointer-events:none;opacity:.5;}
+  .none{color:var(--sub);font-size:11px;}
+  .unmatched{margin-top:30px;}
+  .uchips{display:flex;flex-wrap:wrap;gap:7px;}
+  .uchip{font-size:11px;border:1px dashed var(--line);border-radius:7px;padding:6px 10px;color:var(--sub);}
+  footer{color:var(--sub);font-size:11px;margin-top:26px;text-align:center;line-height:1.7;}
+</style></head>
+<body>
+<h1>🏷️ 대리점별 미션 카드</h1>
+<div class="sub">생성 2026-06-10 10:20 · 데이터 기준 2026-06-10 · 월간 추적 5일(2026-06-05~) · 활성 45곳 · 🔒 공개 공유용(전화번호 비공개·점주명 마스킹)</div>
+
+<div class="toolbar">
+  <input id="q" placeholder="🔍 대리점명 · 점주명 검색…" autocomplete="off">
+  <div class="filters" id="filters">
+    <button class="fbtn on" data-f="all">전체</button>
+    <button class="fbtn" data-f="good">우수(종합≥50%)</button>
+    <button class="fbtn" data-f="active">SNS 게시</button>
+    <button class="fbtn" data-f="zero">게시 0</button>
+    <button class="fbtn" data-f="coupon">쿠폰 사용有</button>
+    <button class="fbtn" data-f="flyer">전단지 인증</button>
+  </div>
+</div>
+<div class="count" id="count"></div>
+<div class="grid" id="grid"></div>
+
+<div class="unmatched" id="unmatchedWrap" style="display:none">
+  <h2 style="font-size:14px;margin-bottom:10px;border-left:3px solid var(--warn);padding-left:9px;">⚠ SNS 대리점과 자동매칭 안 된 쿠폰 발행건</h2>
+  <div class="uchips" id="uchips"></div>
+  <div class="dim" style="margin-top:8px;font-size:11px;">이름 표기가 달라 카드에 못 붙은 쿠폰 원장입니다. 매칭 보정이 필요하면 알려주세요.</div>
+</div>
+
+<footer>월간 미션 = SNS 스냅샷 게시물 증감(목표 5일×1피드) · W001 쿠폰 = admin+Notion 원장 매칭 · W002 전단지 = Notion 전단지인증 체크박스<br>대리점명 매칭은 지역 토큰 기준 자동 연결이라 일부 오차 가능 — 카드 내 쿠폰 발행명으로 확인하세요.</footer>
+
+<script>
+const D = {"today":"2026-06-10","missionStart":"2026-06-05","mBaseDate":"2026-06-05","days":5,"cards":[{"id":46,"name":"도봉·노원 대리점","owner":"정*하","phone":"","instagram":"https://www.instagram.com/sugohero_dobong_nowon/","threads":"","hasIg":true,"hasTh":false,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":45,"name":"인천 서·검단 대리점","owner":"송*광","phone":"","instagram":"https://www.instagram.com/sugohero_icn_seohaegumdan/","threads":"https://www.threads.com/@sugohero_icn_seohaegumdan?hl=ko","hasIg":true,"hasTh":true,"igNew":1,"thNew":null,"overall":10,"igRate":20,"thRate":null,"flyerVerified":true,"flyerNote":"","coupon":{"name":"인천 대리점(서해구/검단구)","배포":19,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":44,"name":"경기 부천대리점","owner":"이*익","phone":"","instagram":"https://www.instagram.com/haenael_sugohero/","threads":"https://www.threads.com/@haenael_sugohero?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":1,"thNew":null,"overall":10,"igRate":20,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"경기 부천대리점","배포":22,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":43,"name":"인천 중구대리점","owner":"유*우","phone":"","instagram":"https://www.instagram.com/sugoyu7507/","threads":"생성후 아이디 전달 예정","hasIg":true,"hasTh":true,"igNew":1,"thNew":null,"overall":10,"igRate":20,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":42,"name":"여주대리점","owner":"김*민","phone":"","instagram":"https://www.instagram.com/sugohero_yeoju/","threads":"https://www.threads.com/@sugohero_yeoju?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":0,"thNew":0,"overall":0,"igRate":0,"thRate":0,"flyerVerified":false,"flyerNote":"","coupon":{"name":"경기 대리점(여주시)","배포":10,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":41,"name":"경기도 인천대리점(부평)","owner":"김*","phone":"","instagram":"","threads":"","hasIg":false,"hasTh":false,"igNew":null,"thNew":null,"overall":null,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":40,"name":"경기 구리대리점","owner":"정*규","phone":"","instagram":"","threads":"","hasIg":false,"hasTh":false,"igNew":null,"thNew":null,"overall":null,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":39,"name":"파주대리점","owner":"최*권","phone":"","instagram":"https://www.instagram.com/sugohero_gyeonggi_paju/","threads":"https://www.threads.com/@sugohero_gyeonggi_paju?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":5,"thNew":0,"overall":50,"igRate":100,"thRate":0,"flyerVerified":false,"flyerNote":"","coupon":{"name":"경기 파주대리점📞","배포":17,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":38,"name":"김해 대리점","owner":"황*길","phone":"","instagram":"https://www.instagram.com/sugohero_gyeongnam_gimhae/","threads":"","hasIg":true,"hasTh":false,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":true,"flyerNote":"","coupon":{"name":"김해대리점","배포":15,"등록":1,"사용":0,"등록률":7,"사용률":0}},{"id":37,"name":"김해 장유대리점","owner":"화*경","phone":"","instagram":"","threads":"","hasIg":false,"hasTh":false,"igNew":null,"thNew":null,"overall":null,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"장유 대리점","배포":13,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":36,"name":"삼척대리점","owner":"조*광","phone":"","instagram":"https://www.instagram.com/sugohero_kangwon_samchuk/","threads":"재생성 후 아이디 전달 예정","hasIg":true,"hasTh":true,"igNew":null,"thNew":null,"overall":0,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"삼척 대리점","배포":20,"등록":3,"사용":0,"등록률":15,"사용률":0}},{"id":35,"name":"수원대리점","owner":"손*규","phone":"","instagram":"https://www.instagram.com/sugohero_kyungki_suwon/","threads":"https://www.threads.com/@sugohero_kyungki_suwon?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":0,"thNew":0,"overall":0,"igRate":0,"thRate":0,"flyerVerified":true,"flyerNote":"","coupon":{"name":"경기수원대리점","배포":25,"등록":1,"사용":1,"등록률":4,"사용률":4}},{"id":34,"name":"구미대리점","owner":"김*희","phone":"","instagram":"http://instagram.com/sugohero_seoul_gangbukgu/","threads":"https://www.instagram.com/sugohero_gumi_thread/","hasIg":true,"hasTh":true,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":true,"flyerNote":"","coupon":{"name":"구미 대리점","배포":16,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":33,"name":"부산 수영대리점","owner":"송*일","phone":"","instagram":"https://www.instagram.com/sugohero_busan_suyong/","threads":"","hasIg":true,"hasTh":false,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"수영구 대리점","배포":12,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":32,"name":"경주 대리점","owner":"서*기","phone":"","instagram":"https://www.instagram.com/sugohero_kyungbuk_kyungju/","threads":"https://www.threads.com/@sugohero_kyungbuk_kyungju?xmt=AQG0BdPsEV03e-OvkWrf--pva2CEOXT3IeTGaneFXjjpYq8","hasIg":true,"hasTh":true,"igNew":null,"thNew":null,"overall":0,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"경주 불국사히어로","배포":13,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":31,"name":"완산대리점_2","owner":"오*훈","phone":"","instagram":"https://www.instagram.com/sugohero_jeonju_wan.san.gu/","threads":"https://www.threads.com/@sugohero_jeonju_wan.san.gu?hl=ko","hasIg":true,"hasTh":true,"igNew":null,"thNew":null,"overall":0,"igRate":null,"thRate":null,"flyerVerified":true,"flyerNote":"","coupon":{"name":"전주 완산구 대리점","배포":14,"등록":6,"사용":0,"등록률":43,"사용률":0}},{"id":30,"name":"전주덕진 대리점","owner":"유*원","phone":"","instagram":"","threads":"","hasIg":false,"hasTh":false,"igNew":null,"thNew":null,"overall":null,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":29,"name":"서울_성북_동대문구 대리","owner":"박*환","phone":"","instagram":"https://www.instagram.com/sugohero_seoul_seongbuk/","threads":"재생성 후 아이디 전달 예정","hasIg":true,"hasTh":true,"igNew":null,"thNew":null,"overall":0,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":28,"name":"서강북 대리점","owner":"현*봉","phone":"","instagram":"https://www.instagram.com/heroagency_sugohero/","threads":"https://www.threads.com/@heroagency_sugohero?xmt=AQG0BdPsEV03e-OvkWrf--pva2CEOXT3IeTGaneFXjjpYq8","hasIg":true,"hasTh":true,"igNew":3,"thNew":null,"overall":30,"igRate":60,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":27,"name":"전주 덕진 완주대리","owner":"임*원","phone":"","instagram":"","threads":"","hasIg":false,"hasTh":false,"igNew":null,"thNew":null,"overall":null,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"전주-덕진구, 완주군 대리점","배포":15,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":26,"name":"거제대리점","owner":"김*범","phone":"","instagram":"https://www.instagram.com/sugohero.geoje.gohyeon/","threads":"","hasIg":true,"hasTh":false,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"경남 거제 대리점","배포":13,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":25,"name":"경기 광주대리점","owner":"서*엽","phone":"","instagram":"","threads":"","hasIg":false,"hasTh":false,"igNew":null,"thNew":null,"overall":null,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":24,"name":"부산 사하점","owner":"박*윤","phone":"","instagram":"","threads":"","hasIg":false,"hasTh":false,"igNew":null,"thNew":null,"overall":null,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":23,"name":"울산대리점","owner":"최*혁","phone":"","instagram":"https://www.instagram.com/sugohero_ulsan/","threads":"https://www.threads.com/@sugohero_ulsan?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":1,"thNew":null,"overall":10,"igRate":20,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"울산 대리점","배포":27,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":22,"name":"서울 성북대리점","owner":"정*열","phone":"","instagram":"https://www.instagram.com/sugohero_seoul_seongbuk/","threads":"","hasIg":true,"hasTh":false,"igNew":null,"thNew":null,"overall":0,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"서울 동대문구, 성북구 대리점","배포":21,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":21,"name":"경기 김포점","owner":"이*현","phone":"","instagram":"https://www.instagram.com/hero_sugoagency/","threads":"https://www.threads.com/@hero_sugoagency?xmt=AQG0BdPsEV03e-OvkWrf--pva2CEOXT3IeTGaneFXjjpYq8","hasIg":true,"hasTh":true,"igNew":3,"thNew":null,"overall":30,"igRate":60,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"경기 김포 대리점","배포":17,"등록":5,"사용":0,"등록률":29,"사용률":0}},{"id":20,"name":"경기 청주대리점","owner":"정*성","phone":"","instagram":"https://www.instagram.com/sugohero_chungbuk_chungju2/","threads":"","hasIg":true,"hasTh":false,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"충북 청주 대리점","배포":18,"등록":1,"사용":0,"등록률":6,"사용률":0}},{"id":19,"name":"경기도 양주대리점","owner":"송*근","phone":"","instagram":"https://www.instagram.com/sugohero_gyeonggi_yangju/","threads":"","hasIg":true,"hasTh":false,"igNew":1,"thNew":null,"overall":20,"igRate":20,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"경기 양주 대리점","배포":13,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":18,"name":"천안 동남구","owner":"김*현","phone":"","instagram":"https://www.instagram.com/sugohero_cheonan_dongnamgu/","threads":"https://www.threads.com/@sugo_hero.cheonan.dongnamgu?hl=ko","hasIg":true,"hasTh":true,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"천안 동남구 대리점","배포":15,"등록":1,"사용":1,"등록률":7,"사용률":7}},{"id":17,"name":"천안 서북구점","owner":"김*헌","phone":"","instagram":"https://www.instagram.com/sugo_agency_/","threads":"https://www.threads.com/@sugo_agency_?hl=ko","hasIg":true,"hasTh":true,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":true,"flyerNote":"","coupon":{"name":"천안 서북구 대리점","배포":14,"등록":1,"사용":1,"등록률":7,"사용률":7}},{"id":15,"name":"이천 대리점","owner":"서*비","phone":"","instagram":"https://www.instagram.com/sugohero_icheon/","threads":"https://www.threads.com/@sugohero_icheon?xmt=AQG06DurEqjeoe-IzcPXlLQ36Gkcu6rp5IxecWw-53jdY-U","hasIg":true,"hasTh":true,"igNew":2,"thNew":null,"overall":20,"igRate":40,"thRate":null,"flyerVerified":true,"flyerNote":"","coupon":{"name":"경기 이천 대리점","배포":13,"등록":4,"사용":1,"등록률":31,"사용률":8}},{"id":14,"name":"제주대리점","owner":"오*환","phone":"","instagram":"","threads":"","hasIg":false,"hasTh":false,"igNew":null,"thNew":null,"overall":null,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":13,"name":"수거히어로 아산대리점","owner":"구*철","phone":"","instagram":"","threads":"","hasIg":false,"hasTh":false,"igNew":null,"thNew":null,"overall":null,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":12,"name":"광주 동구 대리점","owner":"엄*성","phone":"","instagram":"https://www.instagram.com/agency_sugo/","threads":"https://www.threads.com/@agency_sugo?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":2,"thNew":2,"overall":40,"igRate":40,"thRate":40,"flyerVerified":true,"flyerNote":"","coupon":{"name":"광주 동구대리점📞","배포":10,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":11,"name":"광주 북구대리점","owner":"손*문","phone":"","instagram":"https://www.instagram.com/sugohero_gwangju_bukgu/","threads":"https://www.threads.com/@sugohero_gwangju_bukgu?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":1,"thNew":1,"overall":20,"igRate":20,"thRate":20,"flyerVerified":true,"flyerNote":"","coupon":{"name":"광주 북구대리점📞","배포":16,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":10,"name":"부산 남구점","owner":"탁*주","phone":"","instagram":"https://www.instagram.com/sugohero_busan_namgu/","threads":"https://www.threads.com/@sugohero_busan_namgu?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":null,"thNew":null,"overall":0,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"부산남구대리점","배포":13,"등록":4,"사용":1,"등록률":31,"사용률":8}},{"id":9,"name":"대구 달서대리점","owner":"박*우","phone":"","instagram":"https://www.instagram.com/sugohero_daegu_dalsugu/","threads":"계정 재생성 대기중","hasIg":true,"hasTh":true,"igNew":1,"thNew":null,"overall":10,"igRate":20,"thRate":null,"flyerVerified":true,"flyerNote":"","coupon":{"name":"대구 달서구대리점📞","배포":18,"등록":1,"사용":1,"등록률":6,"사용률":6}},{"id":8,"name":"경남 진주 사천대리점","owner":"박*훈","phone":"","instagram":"https://www.instagram.com/agency_sugosugo/","threads":"같은 아이디로 스레드 계정 생성 예정","hasIg":true,"hasTh":true,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"경남 진주 대리점📞","배포":15,"등록":1,"사용":0,"등록률":7,"사용률":0}},{"id":7,"name":"대전 중구 대리점","owner":"황*상","phone":"","instagram":"https://www.instagram.com/sugohero_daejun_joonggu/","threads":"https://www.threads.com/@daejeon.threads?xmt=AQG0BdPsEV03e-OvkWrf--pva2CEOXT3IeTGaneFXjjpYq8","hasIg":true,"hasTh":true,"igNew":5,"thNew":null,"overall":50,"igRate":100,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"대전 대리점","배포":17,"등록":9,"사용":4,"등록률":53,"사용률":24}},{"id":6,"name":"여수 웅천대리점","owner":"유*범","phone":"","instagram":"https://www.instagram.com/sugohero_yeosoo_woongcheon/","threads":"https://www.threads.com/@sugohero_yeosoo_woongcheon?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":6,"thNew":2,"overall":80,"igRate":120,"thRate":40,"flyerVerified":true,"flyerNote":"","coupon":{"name":"전남 여수 대리점","배포":13,"등록":1,"사용":0,"등록률":8,"사용률":0}},{"id":5,"name":"광주 광산대리점","owner":"김**아","phone":"","instagram":"https://www.instagram.com/sugohero_gwangju_gwangsan.gu/","threads":"https://www.threads.com/@gimmaria64","hasIg":true,"hasTh":true,"igNew":4,"thNew":null,"overall":40,"igRate":80,"thRate":null,"flyerVerified":true,"flyerNote":"","coupon":{"name":"광주 광산구 서구 대리점","배포":19,"등록":14,"사용":12,"등록률":74,"사용률":63}},{"id":4,"name":"철원근북면","owner":"김*형","phone":"","instagram":"","threads":"","hasIg":false,"hasTh":false,"igNew":null,"thNew":null,"overall":null,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":null},{"id":3,"name":"부산 진구 대리점","owner":"신*훈","phone":"","instagram":"https://www.instagram.com/sugohero_busan_jingu/","threads":"https://www.threads.com/@sugohero_busan_jingu?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"부산진구대리점","배포":15,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":2,"name":"창원 총괄대리점","owner":"김*열","phone":"","instagram":"https://www.instagram.com/sugohero_changwon/","threads":"","hasIg":true,"hasTh":false,"igNew":0,"thNew":null,"overall":0,"igRate":0,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"창원대리점","배포":26,"등록":0,"사용":0,"등록률":0,"사용률":0}},{"id":1,"name":"해운대 대리점","owner":"윤*정","phone":"","instagram":"https://www.instagram.com/sugohero_busan_haeundae/","threads":"https://www.threads.com/@sugohero_busan_haeundae?xmt=AQG0PAWG_LBnSWy3luISHpkfT8jI2gmuoyyZeKNkpmM6Wg0","hasIg":true,"hasTh":true,"igNew":null,"thNew":null,"overall":0,"igRate":null,"thRate":null,"flyerVerified":false,"flyerNote":"","coupon":{"name":"해운대 대리점","배포":16,"등록":0,"사용":0,"등록률":0,"사용률":0}}],"unmatched":[{"name":"인천 영종도 대리점","배포":11,"등록":1,"사용":0},{"name":"경기도 의정부,  강북구 대리점","배포":30,"등록":1,"사용":0},{"name":"경기 고양 대리점","배포":26,"등록":0,"사용":0},{"name":"서울 강남구 대리점","배포":18,"등록":0,"사용":0},{"name":"연제구대리점","배포":12,"등록":0,"사용":0},{"name":"경기 광주 대리점","배포":15,"등록":0,"사용":0}],"summary":{"대리점수":39,"배포":652,"등록":55,"사용":22,"등록률":8,"사용률":3},"pub":true};
+const color = r => r==null?'var(--sub)':r>=80?'var(--good)':r>=50?'var(--warn)':r>0?'var(--bad)':'var(--sub)';
+function statusOf(c){
+  if(c.overall==null) return {cls:'muted',txt:'계정 미등록'};
+  if(c.overall>=50) return {cls:'good',txt:'우수 '+c.overall+'%'};
+  if(c.overall>0) return {cls:'warn',txt:'양호 '+c.overall+'%'};
+  return {cls:'bad',txt:'게시 0'};
+}
+function mrow(label,has,nw,rate){
+  if(!has) return '<div class="mrow"><span class="mk">'+label+'</span><span class="dim">계정 없음</span></div>';
+  if(nw==null) return '<div class="mrow"><span class="mk">'+label+'</span><span class="dim">수집 전</span></div>';
+  const c=color(rate);
+  return '<div class="mrow"><span class="mk">'+label+'</span><span class="prog"><i style="width:'+Math.min(100,rate)+'%;background:'+c+'"></i></span><span class="pv" style="color:'+c+'">'+rate+'% <span class="dim" style="font-weight:400">('+nw+'/'+D.days+')</span></span></div>';
+}
+function cardHtml(c){
+  const st=statusOf(c);
+  let h='<div class="card s-'+st.cls+'" data-name="'+(c.name+' '+c.owner).toLowerCase()+'">';
+  h+='<div class="chead"><div><div class="cname">'+c.name+'</div><div class="cmeta">'+(c.owner||'점주 미상')+(c.phone?' · '+c.phone:'')+'</div></div><span class="badge '+st.cls+'">'+st.txt+'</span></div>';
+  // 월간 SNS
+  h+='<div class="sec"><div class="sech"><span class="ico">📅</span>월간 미션 · SNS 1일1피드</div>';
+  h+=mrow('인스타',c.hasIg,c.igNew,c.igRate);
+  h+=mrow('스레드',c.hasTh,c.thNew,c.thRate);
+  h+='</div>';
+  // W001 쿠폰
+  h+='<div class="sec"><div class="sech"><span class="ico">🎟️</span>W001 · 체험단 쿠폰</div>';
+  if(c.coupon){
+    const cp=c.coupon;
+    h+='<div class="funnel"><div class="fstep dist"><div class="n">'+cp.배포+'</div><div class="l">배포</div></div>'+
+       '<div class="fstep reg"><div class="n">'+cp.등록+'</div><div class="l">등록 '+cp.등록률+'%</div></div>'+
+       '<div class="fstep use"><div class="n">'+cp.사용+'</div><div class="l">사용 '+cp.사용률+'%</div></div></div>';
+    if(cp.name!==c.name) h+='<div class="dim" style="font-size:10px;margin-top:6px;">발행명: '+cp.name+'</div>';
+  } else h+='<div class="none">쿠폰 발행 원장 매칭 없음</div>';
+  h+='</div>';
+  // W002 전단지
+  h+='<div class="sec"><div class="sech"><span class="ico">📄</span>W002 · 전단지 인증</div>';
+  h+='<div class="flyer">'+(c.flyerVerified?'<span class="badge good">✔ 인증완료</span>':'<span class="badge muted">미인증</span>')+(c.flyerNote?'<span class="dim">'+c.flyerNote+'</span>':'')+'</div>';
+  h+='</div>';
+  // 링크
+  h+='<div class="links">'+
+     (c.instagram?'<a class="lnk" href="'+c.instagram+'" target="_blank">📷 인스타</a>':'<span class="lnk off">📷 없음</span>')+
+     (c.threads?'<a class="lnk" href="'+c.threads+'" target="_blank">🧵 스레드</a>':'<span class="lnk off">🧵 없음</span>')+
+     '</div>';
+  h+='</div>';
+  return h;
+}
+// 정렬: 종합 달성률 desc → 쿠폰사용 desc
+const cards=[...D.cards].sort((a,b)=>(b.overall??-1)-(a.overall??-1) || ((b.coupon?b.coupon.사용:0)-(a.coupon?a.coupon.사용:0)));
+let curFilter='all', curQ='';
+function pass(c){
+  if(curQ && !(c.name+' '+c.owner).toLowerCase().includes(curQ)) return false;
+  switch(curFilter){
+    case 'good': return c.overall!=null && c.overall>=50;
+    case 'active': return ((c.igNew||0)+(c.thNew||0))>0;
+    case 'zero': return c.overall===0;
+    case 'coupon': return c.coupon && c.coupon.사용>0;
+    case 'flyer': return c.flyerVerified;
+    default: return true;
+  }
+}
+function render(){
+  const list=cards.filter(pass);
+  document.getElementById('grid').innerHTML=list.map(cardHtml).join('')||'<div class="none">조건에 맞는 대리점이 없습니다.</div>';
+  document.getElementById('count').textContent=list.length+' / '+cards.length+'곳 표시';
+}
+document.getElementById('q').addEventListener('input',e=>{curQ=e.target.value.trim().toLowerCase();render();});
+document.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');curFilter=b.dataset.f;render();
+}));
+render();
+// 미매칭 쿠폰
+if(D.unmatched && D.unmatched.length){
+  document.getElementById('unmatchedWrap').style.display='block';
+  document.getElementById('uchips').innerHTML=D.unmatched.map(u=>'<div class="uchip">'+u.name+' · 배포 '+u.배포+' / 등록 '+u.등록+' / 사용 '+u.사용+'</div>').join('');
+}
+</script>
+</body></html>
